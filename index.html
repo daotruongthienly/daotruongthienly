@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛸 ĐỘI CẢNH SÁT VŨ TRỤ - Ôn Tập Trạng Ngữ</title>
+    <style>
+        /* ==========================================================================
+           GLOBAL & RESET STYLES
+           ========================================================================== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #0b0c10;
+            color: #ffffff;
+        }
+
+        /* Canvas background overlay */
+        #space-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        #effect-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 99;
+            pointer-events: none;
+        }
+
+        /* Main Game Wrapper */
+        #app {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* Glassmorphism Panel Container */
+        .glass-panel {
+            background: rgba(18, 25, 52, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 2px solid rgba(0, 242, 254, 0.4);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 242, 254, 0.2),
+                        inset 0 0 15px rgba(0, 242, 254, 0.15);
+            padding: 20px;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        /* Typography & Glows */
+        .title-glow {
+            font-size: 2.2rem;
+            font-weight: 900;
+            text-align: center;
+            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 50%, #00c6ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(0, 242, 254, 0.6);
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #a5f3fc;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+
+        /* Buttons */
+        .btn-sci-fi {
+            background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
+            border: none;
+            border-radius: 50px;
+            color: #ffffff;
+            font-size: 1.2rem;
+            font-weight: bold;
+            padding: 14px 32px;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(0, 198, 255, 0.6);
+            transition: transform 0.2s, box-shadow 0.2s, background 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-sci-fi:hover {
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 0 25px rgba(0, 242, 254, 0.9);
+        }
+
+        .btn-sci-fi:active {
+            transform: translateY(1px) scale(0.98);
+        }
+
+        .btn-sci-fi:disabled {
+            background: #475569;
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Inputs */
+        .input-field {
+            width: 100%;
+            max-width: 350px;
+            padding: 14px 20px;
+            font-size: 1.1rem;
+            border-radius: 30px;
+            border: 2px solid #00f2fe;
+            background: rgba(10, 15, 30, 0.8);
+            color: #ffffff;
+            outline: none;
+            text-align: center;
+            margin: 15px auto;
+            display: block;
+            box-shadow: inset 0 0 10px rgba(0, 242, 254, 0.3);
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .input-field:focus {
+            border-color: #38ef7d;
+            box-shadow: 0 0 15px rgba(56, 239, 125, 0.6);
+        }
+
+        /* Screen visibility handling */
+        .screen {
+            display: none;
+            width: 100%;
+            height: 100%;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* --- START SCREEN --- */
+        #start-screen {
+            text-align: center;
+        }
+
+        .instruction-box {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            padding: 15px 20px;
+            margin: 15px 0;
+            text-align: left;
+            font-size: 1rem;
+            line-height: 1.6;
+            border-left: 4px solid #00f2fe;
+        }
+
+        .instruction-item {
+            margin: 6px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* --- GAMEPLAY HEADER --- */
+        #hud-bar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid rgba(0, 242, 254, 0.3);
+            border-radius: 15px;
+            margin-bottom: 12px;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .hud-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .lives-container {
+            color: #ef4444;
+            font-size: 1.3rem;
+            letter-spacing: 2px;
+        }
+
+        /* --- QUESTION BOX --- */
+        .question-card {
+            min-height: 120px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-size: 1.25rem;
+            line-height: 1.5;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 20px;
+            background: rgba(15, 23, 42, 0.85);
+            border-left: 5px solid #00f2fe;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .question-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 242, 254, 0.15), transparent);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { left: -100%; }
+            50% { left: 100%; }
+            100% { left: 100%; }
+        }
+
+        /* --- UFO OPTIONS GRID --- */
+        .ufo-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .ufo-btn {
+            background: rgba(30, 41, 59, 0.85);
+            border: 2px solid #38bdf8;
+            border-radius: 18px;
+            padding: 16px 14px;
+            color: #ffffff;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            text-align: left;
+        }
+
+        .ufo-btn:hover:not(:disabled) {
+            transform: translateY(-5px);
+            background: rgba(14, 165, 233, 0.25);
+            border-color: #00f2fe;
+            box-shadow: 0 8px 25px rgba(0, 242, 254, 0.4);
+        }
+
+        .ufo-icon {
+            font-size: 1.8rem;
+            flex-shrink: 0;
+            animation: floatSlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes floatSlow {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-5px); }
+        }
+
+        .ufo-btn.correct-ufo {
+            background: rgba(34, 197, 94, 0.3) !important;
+            border-color: #22c55e !important;
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.8) !important;
+        }
+
+        .ufo-btn.wrong-ufo {
+            background: rgba(239, 68, 68, 0.3) !important;
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.8) !important;
+        }
+
+        /* --- POLICE SHIP & DIALOG BANNER --- */
+        .bottom-battle-zone {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .police-ship {
+            font-size: 3rem;
+            filter: drop-shadow(0 0 10px #00f2fe);
+            animation: shipHover 3s ease-in-out infinite alternate;
+            margin-bottom: 5px;
+        }
+
+        @keyframes shipHover {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-8px); }
+        }
+
+        .feedback-banner {
+            width: 100%;
+            padding: 12px 18px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 1rem;
+            display: none;
+            margin-top: 10px;
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        .feedback-banner.correct {
+            background: rgba(20, 83, 45, 0.9);
+            border: 1px solid #4ade80;
+            color: #f0fdf4;
+        }
+
+        .feedback-banner.wrong {
+            background: rgba(127, 29, 29, 0.9);
+            border: 1px solid #fca5a5;
+            color: #fef2f2;
+        }
+
+        .next-btn-container {
+            margin-top: 10px;
+            display: none;
+        }
+
+        /* --- RESULT SCREEN --- */
+        .result-card {
+            text-align: center;
+            max-width: 550px;
+        }
+
+        .badge-box {
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            border: 1px dashed #00f2fe;
+        }
+
+        .badge-stars {
+            font-size: 2.2rem;
+            color: #facc15;
+            margin-bottom: 5px;
+        }
+
+        .badge-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #38bdf8;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin: 15px 0;
+            text-align: left;
+        }
+
+        .stat-item {
+            background: rgba(15, 23, 42, 0.6);
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .stat-value {
+            font-weight: bold;
+            color: #38f9d7;
+        }
+
+        .form-status {
+            margin-top: 12px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            min-height: 24px;
+        }
+
+        /* Screen Shake Animation */
+        .shake {
+            animation: shakeAnim 0.4s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shakeAnim {
+            10%, 90% { transform: translate3d(-2px, 0, 0); }
+            20%, 80% { transform: translate3d(4px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+            40%, 60% { transform: translate3d(6px, 0, 0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* RESPONSIVE DESIGN */
+        @media (max-width: 640px) {
+            .ufo-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .title-glow {
+                font-size: 1.7rem;
+            }
+
+            .question-card {
+                font-size: 1.05rem;
+                padding: 12px;
+                min-height: 90px;
+            }
+
+            .ufo-btn {
+                padding: 12px;
+                font-size: 0.95rem;
+            }
+
+            .stat-grid {
+                grid-template-columns: 1fr;
+            }
+
+            #hud-bar {
+                font-size: 0.85rem;
+                padding: 8px 12px;
+            }
+
+            .btn-sci-fi {
+                padding: 12px 24px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Background Space Canvas -->
+    <canvas id="space-bg"></canvas>
+    <!-- Foreground Particle & Laser Effects Canvas -->
+    <canvas id="effect-canvas"></canvas>
+
+    <!-- App Main Container -->
+    <div id="app">
+
+        <!-- ==========================================================
+             1. MÀN HÌNH BẮT ĐẦU (START SCREEN)
+             ========================================================== -->
+        <div id="start-screen" class="screen active">
+            <div class="glass-panel" style="max-width: 550px;">
+                <div class="title-glow">🛸 ĐỘI CẢNH SÁT VŨ TRỤ</div>
+                <div class="subtitle">Môn: Tiếng Việt 5 - Ôn Tập Trạng Ngữ</div>
+
+                <div class="instruction-box">
+                    <div class="instruction-item">👽 <b>Nhiệm vụ:</b> Bắn hạ đĩa bay bằng cách chọn đáp án đúng.</div>
+                    <div class="instruction-item">❤️ <b>Mạng sống:</b> Bạn có 3 trái tim. Chọn sai sẽ mất 1 tim!</div>
+                    <div class="instruction-item">⭐ <b>Điểm số:</b> Mỗi câu đúng được thưởng +10 điểm.</div>
+                    <div class="instruction-item">🏆 <b>Mục tiêu:</b> Tiêu diệt hạm đội ngoài hành tinh để bảo vệ Trái Đất!</div>
+                </div>
+
+                <input type="text" id="student-name-input" class="input-field" placeholder="Nhập họ và tên học sinh..." maxlength="40" autocomplete="off" />
+
+                <button id="start-btn" class="btn-sci-fi" onclick="startGame()">
+                    🚀 BẮT ĐẦU NHIỆM VỤ
+                </button>
+            </div>
+        </div>
+
+        <!-- ==========================================================
+             2. MÀN HÌNH CHƠI GAME (GAMEPLAY SCREEN)
+             ========================================================== -->
+        <div id="game-screen" class="screen">
+            <!-- HUD BAR -->
+            <div id="hud-bar">
+                <div class="hud-item">👦 <span id="hud-player-name">Cảnh sát</span></div>
+                <div class="hud-item lives-container" id="hud-lives">❤️❤️❤️</div>
+                <div class="hud-item">⭐ Điểm: <span id="hud-score" style="color: #facc15;">0</span></div>
+                <div class="hud-item">📖 <span id="hud-progress">Câu 1/10</span></div>
+            </div>
+
+            <!-- QUESTION CARD -->
+            <div class="glass-panel question-card" id="question-text">
+                Đang tải câu hỏi...
+            </div>
+
+            <!-- UFO OPTIONS -->
+            <div class="ufo-grid" id="ufo-options-container">
+                <!-- 4 UFO buttons will be injected dynamically -->
+            </div>
+
+            <!-- BATTLE & FEEDBACK ZONE -->
+            <div class="bottom-battle-zone">
+                <div class="police-ship" id="police-ship">🚀</div>
+
+                <div id="feedback-banner" class="feedback-banner">
+                    <div id="feedback-title" style="font-size: 1.1rem; font-weight: bold; margin-bottom: 4px;"></div>
+                    <div id="feedback-detail"></div>
+                </div>
+
+                <div class="next-btn-container" id="next-btn-box">
+                    <button class="btn-sci-fi" onclick="nextQuestion()">➡️ TIẾP THEO</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==========================================================
+             3. MÀN HÌNH KẾT THÚC / XẾP HẠNG (RESULT SCREEN)
+             ========================================================== -->
+        <div id="result-screen" class="screen">
+            <div class="glass-panel result-card">
+                <div class="title-glow" id="result-main-title">🏆 NHIỆM VỤ HOÀN THÀNH</div>
+                <div style="font-size: 1.1rem; color: #a5f3fc;" id="result-subtitle">Trái Đất đã được an toàn!</div>
+
+                <div class="badge-box">
+                    <div class="badge-stars" id="rank-stars">⭐⭐⭐</div>
+                    <div class="badge-title" id="rank-title">Anh hùng Ngân Hà</div>
+                </div>
+
+                <div class="stat-grid">
+                    <div class="stat-item">
+                        <span>👦 Chiến sĩ:</span>
+                        <span class="stat-value" id="res-student-name">--</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>⭐ Tổng điểm:</span>
+                        <span class="stat-value" id="res-score">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>✅ Câu trả lời đúng:</span>
+                        <span class="stat-value" id="res-correct">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>❌ Câu trả lời sai:</span>
+                        <span class="stat-value" id="res-wrong">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>❤️ Tim còn lại:</span>
+                        <span class="stat-value" id="res-lives">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>📈 Tỷ lệ chính xác:</span>
+                        <span class="stat-value" id="res-accuracy">0%</span>
+                    </div>
+                </div>
+
+                <button id="send-btn" class="btn-sci-fi" onclick="sendResult()">
+                    📤 Gửi kết quả đến cô Lý
+                </button>
+
+                <div id="form-status" class="form-status"></div>
+
+                <div style="margin-top: 20px;">
+                    <button class="btn-sci-fi" style="background: rgba(255,255,255,0.1); border: 1px solid #00f2fe;" onclick="restartGame()">
+                        🔄 Chơi Lại
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ==========================================================
+         JAVASCRIPT LOGIC
+         ========================================================== -->
+    <script>
+        // ==========================================================================
+        // DỮ LIỆU CÂU HỎI TIẾNG VIỆT LỚP 5 - CHỦ ĐỀ TRẠNG NGỮ
+        // ==========================================================================
+        const QUIZ_DATA = [
+            {
+                question: "Trong câu: 'Sáng sớm, mặt trời nhô lên đỏ rực ở phía đông.', bộ phận nào là trạng ngữ?",
+                options: [
+                    "Sáng sớm",
+                    "Mặt trời",
+                    "Nhô lên đỏ rực",
+                    "Ở phía đông"
+                ],
+                answer: 0,
+                explanation: "'Sáng sớm' trả lời cho câu hỏi 'Khi nào?', bổ sung ý nghĩa thời gian cho câu."
+            },
+            {
+                question: "Trạng ngữ trong câu: 'Trên cành cây cao, những chú chim hót líu lo.' thuộc loại trạng ngữ nào?",
+                options: [
+                    "Trạng ngữ chỉ thời gian",
+                    "Trạng ngữ chỉ nơi chốn",
+                    "Trạng ngữ chỉ nguyên nhân",
+                    "Trạng ngữ chỉ phương tiện"
+                ],
+                answer: 1,
+                explanation: "'Trên cành cây cao' trả lời cho câu hỏi 'Ở đâu?', xác định nơi chốn diễn ra sự việc."
+            },
+            {
+                question: "Bộ phận trạng ngữ trong câu: 'Vì mưa to, đường phố bị ngập lụt.' chỉ điều gì?",
+                options: [
+                    "Phương tiện",
+                    "Mục đích",
+                    "Nguyên nhân",
+                    "Nơi chốn"
+                ],
+                answer: 2,
+                explanation: "'Vì mưa to' trả lời cho câu hỏi 'Vì sao? Do đâu?', giải thích nguyên nhân gây ra ngập lụt."
+            },
+            {
+                question: "Trạng ngữ chỉ mục đích thường trả lời cho các câu hỏi nào?",
+                options: [
+                    "Để làm gì? Nhằm mục đích gì?",
+                    "Khi nào? Bao giờ?",
+                    "Bằng cái gì? Với cái gì?",
+                    "Ở đâu? Nơi nào?"
+                ],
+                answer: 0,
+                explanation: "Trạng ngữ chỉ mục đích xác định mục tiêu của hành động (Ví dụ: 'Để học tốt, em cần chăm chỉ.')."
+            },
+            {
+                question: "Tìm trạng ngữ chỉ phương tiện trong câu: 'Bằng chiếc xe đạp cũ, Nam vẫn hằng ngày đến trường.'",
+                options: [
+                    "Đến trường",
+                    "Nam vẫn hằng ngày",
+                    "Bằng chiếc xe đạp cũ",
+                    "Xe đạp cũ"
+                ],
+                answer: 2,
+                explanation: "'Bằng chiếc xe đạp cũ' mở đầu bằng từ 'Bằng', chỉ công cụ/phương tiện giúp Nam đi học."
+            },
+            {
+                question: "Trạng ngữ thường được ngăn cách với chủ ngữ và vị ngữ bằng dấu gì khi viết?",
+                options: [
+                    "Dấu chấm",
+                    "Dấu phẩy",
+                    "Dấu chấm hỏi",
+                    "Dấu hai chấm"
+                ],
+                answer: 1,
+                explanation: "Dấu phẩy được dùng để ngăn cách rõ ràng giữa trạng ngữ và nòng cốt câu (chủ ngữ - vị ngữ)."
+            },
+            {
+                question: "Điền trạng ngữ thích hợp vào chỗ trống: '..., trăm hoa đua nhau khoe sắc.'",
+                options: [
+                    "Để đạt học sinh giỏi",
+                    "Mùa xuân về",
+                    "Nhờ chăm chỉ",
+                    "Bằng xe máy"
+                ],
+                answer: 1,
+                explanation: "'Mùa xuân về' là trạng ngữ chỉ thời gian phù hợp nhất với ngữ cảnh hoa nở khoe sắc."
+            },
+            {
+                question: "Câu nào dưới đây có trạng ngữ chỉ nguyên nhân?",
+                options: [
+                    "Để học giỏi, Lan luôn tập trung nghe giảng.",
+                    "Nhờ mưa thuận gió hòa, hoa màu tươi tốt.",
+                    "Hôm nay, chúng em đi tham quan bảo tàng.",
+                    "Bằng giọng hát ngọt ngào, cô ấy đã chinh phục khán giả."
+                ],
+                answer: 1,
+                explanation: "'Nhờ mưa thuận gió hòa' giải thích nguyên nhân vì sao hoa màu tươi tốt."
+            },
+            {
+                question: "Trong câu: 'Để bảo vệ môi trường, chúng ta không nên vứt rác bẻ cành.', câu hỏi nào tương ứng với trạng ngữ?",
+                options: [
+                    "Vì sao chúng ta không vứt rác?",
+                    "Để làm gì?",
+                    "Ở đâu?",
+                    "Khi nào?"
+                ],
+                answer: 1,
+                explanation: "'Để bảo vệ môi trường' là trạng ngữ chỉ mục đích, tương ứng câu hỏi 'Để làm gì?'"
+            },
+            {
+                question: "Trạng ngữ chỉ phương tiện thường bắt đầu bằng những từ nào?",
+                options: [
+                    "Vì, Do, Nhờ",
+                    "Tại, Vì, Bởi",
+                    "Bằng, Với",
+                    "Để, Nhằm"
+                ],
+                answer: 2,
+                explanation: "Từ 'Bằng' hoặc 'Với' thường đứng đầu trạng ngữ chỉ phương tiện, cách thức."
+            }
+        ];
+
+        // ==========================================================================
+        // GAME STATE & VARIABLES
+        // ==========================================================================
+        let studentName = "";
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let lives = 3;
+        let correctAnswersCount = 0;
+        let wrongAnswersCount = 0;
+        let shuffledQuestions = [];
+        let currentShuffledAnswers = [];
+        let isAnswerSubmitted = false;
+
+        // Audio Context (Web Audio API)
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        // ==========================================================================
+        // PROCEDURAL SOUND EFFECTS (Web Audio API - No External Files)
+        // ==========================================================================
+        function playSoundBeep() {
+            try {
+                initAudio();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.08);
+            } catch (e) {}
+        }
+
+        function playCorrectSound() {
+            try {
+                initAudio();
+                const now = audioCtx.currentTime;
+                
+                // Ting 1
+                const osc1 = audioCtx.createOscillator();
+                const gain1 = audioCtx.createGain();
+                osc1.type = 'triangle';
+                osc1.frequency.setValueAtTime(523.25, now); // C5
+                gain1.gain.setValueAtTime(0.3, now);
+                gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+                osc1.connect(gain1);
+                gain1.connect(audioCtx.destination);
+                osc1.start(now);
+                osc1.stop(now + 0.3);
+
+                // Ting 2
+                const osc2 = audioCtx.createOscillator();
+                const gain2 = audioCtx.createGain();
+                osc2.type = 'triangle';
+                osc2.frequency.setValueAtTime(659.25, now + 0.12); // E5
+                gain2.gain.setValueAtTime(0.3, now + 0.12);
+                gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+                osc2.connect(gain2);
+                gain2.connect(audioCtx.destination);
+                osc2.start(now + 0.12);
+                osc2.stop(now + 0.45);
+            } catch (e) {}
+        }
+
+        function playWrongSound() {
+            try {
+                initAudio();
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(160, now);
+                osc.frequency.linearRampToValueAtTime(100, now + 0.35);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.35);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.35);
+            } catch (e) {}
+        }
+
+        function playLaserSound() {
+            try {
+                initAudio();
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(900, now);
+                osc.frequency.exponentialRampToValueAtTime(200, now + 0.2);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.2);
+            } catch (e) {}
+        }
+
+        function playExplosionSound() {
+            try {
+                initAudio();
+                const now = audioCtx.currentTime;
+                const bufferSize = audioCtx.sampleRate * 0.3;
+                const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+                const noise = audioCtx.createBufferSource();
+                noise.buffer = buffer;
+
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(800, now);
+                filter.frequency.linearRampToValueAtTime(50, now + 0.3);
+
+                const gain = audioCtx.createGain();
+                gain.gain.setValueAtTime(0.4, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                noise.start(now);
+                noise.stop(now + 0.3);
+            } catch (e) {}
+        }
+
+        // ==========================================================================
+        // CANVAS & VISUAL EFFECTS (Space Starfield & Particles)
+        // ==========================================================================
+        const bgCanvas = document.getElementById('space-bg');
+        const bgCtx = bgCanvas.getContext('2d');
+        const fxCanvas = document.getElementById('effect-canvas');
+        const fxCtx = fxCanvas.getContext('2d');
+
+        let width, height;
+        let stars = [];
+        let particles = [];
+        let lasers = [];
+
+        function resizeCanvas() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            bgCanvas.width = width;
+            bgCanvas.height = height;
+            fxCanvas.width = width;
+            fxCanvas.height = height;
+            initStars();
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+
+        function initStars() {
+            stars = [];
+            const count = Math.floor((width * height) / 3000);
+            for (let i = 0; i < count; i++) {
+                stars.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    radius: Math.random() * 1.8 + 0.5,
+                    alpha: Math.random(),
+                    speed: Math.random() * 0.02 + 0.005
+                });
+            }
+        }
+
+        function renderSpaceBackground() {
+            bgCtx.clearRect(0, 0, width, height);
+
+            // Nebula Gradients
+            const grad1 = bgCtx.createRadialGradient(width * 0.2, height * 0.3, 50, width * 0.2, height * 0.3, width * 0.5);
+            grad1.addColorStop(0, 'rgba(147, 51, 234, 0.15)');
+            grad1.addColorStop(1, 'transparent');
+            bgCtx.fillStyle = grad1;
+            bgCtx.fillRect(0, 0, width, height);
+
+            const grad2 = bgCtx.createRadialGradient(width * 0.8, height * 0.7, 50, width * 0.8, height * 0.7, width * 0.5);
+            grad2.addColorStop(0, 'rgba(6, 182, 212, 0.15)');
+            grad2.addColorStop(1, 'transparent');
+            bgCtx.fillStyle = grad2;
+            bgCtx.fillRect(0, 0, width, height);
+
+            // Twinkling Stars
+            bgCtx.fillStyle = "#ffffff";
+            stars.forEach(star => {
+                star.alpha += star.speed;
+                if (star.alpha > 1 || star.alpha < 0) {
+                    star.speed = -star.speed;
+                }
+                bgCtx.globalAlpha = Math.max(0.1, Math.min(1, star.alpha));
+                bgCtx.beginPath();
+                bgCtx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                bgCtx.fill();
+            });
+            bgCtx.globalAlpha = 1.0;
+
+            requestAnimationFrame(renderSpaceBackground);
+        }
+
+        function renderEffects() {
+            fxCtx.clearRect(0, 0, width, height);
+
+            // Draw Lasers
+            for (let i = lasers.length - 1; i >= 0; i--) {
+                const l = lasers[i];
+                fxCtx.strokeStyle = l.color;
+                fxCtx.lineWidth = l.width;
+                fxCtx.shadowColor = l.color;
+                fxCtx.shadowBlur = 15;
+                fxCtx.beginPath();
+                fxCtx.moveTo(l.x1, l.y1);
+                fxCtx.lineTo(l.x2, l.y2);
+                fxCtx.stroke();
+                fxCtx.shadowBlur = 0;
+
+                l.progress += 0.15;
+                l.x2 += (l.tx - l.x1) * 0.2;
+                l.y2 += (l.ty - l.y1) * 0.2;
+
+                if (l.progress >= 1) {
+                    lasers.splice(i, 1);
+                }
+            }
+
+            // Draw Particles (Explosions / Confetti)
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.alpha -= p.decay;
+
+                if (p.isConfetti) {
+                    p.vy += 0.1; // gravity
+                    p.rotation += p.rotSpeed;
+                }
+
+                if (p.alpha <= 0) {
+                    particles.splice(i, 1);
+                    continue;
+                }
+
+                fxCtx.save();
+                fxCtx.globalAlpha = p.alpha;
+                fxCtx.fillStyle = p.color;
+                fxCtx.translate(p.x, p.y);
+                if (p.isConfetti) {
+                    fxCtx.rotate(p.rotation);
+                    fxCtx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                } else {
+                    fxCtx.beginPath();
+                    fxCtx.arc(0, 0, p.size, 0, Math.PI * 2);
+                    fxCtx.fill();
+                }
+                fxCtx.restore();
+            }
+
+            requestAnimationFrame(renderEffects);
+        }
+
+        // Trigger Explosion Particles
+        function createExplosionParticles(x, y) {
+            playExplosionSound();
+            const colors = ['#00f2fe', '#4facfe', '#ff0844', '#ffb199', '#facc15', '#ffffff'];
+            for (let i = 0; i < 40; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 8 + 2;
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    size: Math.random() * 5 + 2,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    alpha: 1,
+                    decay: Math.random() * 0.03 + 0.02,
+                    isConfetti: false
+                });
+            }
+        }
+
+        // Trigger Confetti Celebration
+        function createConfetti() {
+            const colors = ['#22c55e', '#38bdf8', '#facc15', '#ec4899', '#a855f7'];
+            for (let i = 0; i < 70; i++) {
+                particles.push({
+                    x: width / 2 + (Math.random() * 200 - 100),
+                    y: height * 0.3,
+                    vx: Math.random() * 10 - 5,
+                    vy: Math.random() * -10 - 2,
+                    size: Math.random() * 8 + 6,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    alpha: 1,
+                    decay: Math.random() * 0.015 + 0.008,
+                    rotation: Math.random() * Math.PI,
+                    rotSpeed: Math.random() * 0.2 - 0.1,
+                    isConfetti: true
+                });
+            }
+        }
+
+        // Laser Beam Effect
+        function fireLaserToElement(targetElem) {
+            playLaserSound();
+            const ship = document.getElementById('police-ship');
+            const shipRect = ship.getBoundingClientRect();
+            const targetRect = targetElem.getBoundingClientRect();
+
+            const startX = shipRect.left + shipRect.width / 2;
+            const startY = shipRect.top;
+            const targetX = targetRect.left + targetRect.width / 2;
+            const targetY = targetRect.top + targetRect.height / 2;
+
+            lasers.push({
+                x1: startX,
+                y1: startY,
+                x2: startX,
+                y2: startY,
+                tx: targetX,
+                ty: targetY,
+                width: 5,
+                color: '#00f2fe',
+                progress: 0
+            });
+
+            setTimeout(() => {
+                createExplosionParticles(targetX, targetY);
+            }, 180);
+        }
+
+        // ==========================================================================
+        // GAMEPLAY ENGINE & LOGIC
+        // ==========================================================================
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            playSoundBeep();
+        }
+
+        function startGame() {
+            const input = document.getElementById('student-name-input');
+            const nameVal = input.value.trim();
+
+            if (!nameVal) {
+                alert('Vui lòng nhập họ và tên của em trước khi bắt đầu!');
+                input.focus();
+                return;
+            }
+
+            studentName = nameVal;
+            document.getElementById('hud-player-name').innerText = studentName;
+
+            // Reset Game Variables
+            score = 0;
+            lives = 3;
+            correctAnswersCount = 0;
+            wrongAnswersCount = 0;
+            currentQuestionIndex = 0;
+
+            // Shuffle Quiz Array
+            shuffledQuestions = [...QUIZ_DATA].sort(() => Math.random() - 0.5);
+
+            updateHUD();
+            showScreen('game-screen');
+            renderQuestion();
+        }
+
+        function updateHUD() {
+            document.getElementById('hud-score').innerText = score;
+            document.getElementById('hud-progress').innerText = `Câu ${currentQuestionIndex + 1}/${shuffledQuestions.length}`;
+            
+            // Render Hearts
+            let heartsHtml = '';
+            for (let i = 0; i < 3; i++) {
+                if (i < lives) {
+                    heartsHtml += '❤️';
+                } else {
+                    heartsHtml += '🖤';
+                }
+            }
+            document.getElementById('hud-lives').innerHTML = heartsHtml;
+        }
+
+        function renderQuestion() {
+            isAnswerSubmitted = false;
+
+            // Hide feedback & next buttons
+            document.getElementById('feedback-banner').style.display = 'none';
+            document.getElementById('next-btn-box').style.display = 'none';
+
+            const qData = shuffledQuestions[currentQuestionIndex];
+            document.getElementById('question-text').innerText = qData.question;
+
+            // Prepare Shuffled Answers
+            currentShuffledAnswers = qData.options.map((opt, idx) => ({
+                text: opt,
+                originalIndex: idx
+            })).sort(() => Math.random() - 0.5);
+
+            const container = document.getElementById('ufo-options-container');
+            container.innerHTML = '';
+
+            const ufoEmojis = ['🛸', '👾', '🛸', '👾'];
+
+            currentShuffledAnswers.forEach((ansObj, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'ufo-btn';
+                btn.onclick = () => checkAnswer(idx, btn);
+                btn.innerHTML = `
+                    <span class="ufo-icon">${ufoEmojis[idx % ufoEmojis.length]}</span>
+                    <span><b>${String.fromCharCode(65 + idx)}.</b> ${ansObj.text}</span>
+                `;
+                container.appendChild(btn);
+            });
+
+            updateHUD();
+        }
+
+        function checkAnswer(selectedIndex, clickedBtn) {
+            if (isAnswerSubmitted) return;
+            isAnswerSubmitted = true;
+
+            const qData = shuffledQuestions[currentQuestionIndex];
+            const chosenObj = currentShuffledAnswers[selectedIndex];
+            const isCorrect = (chosenObj.originalIndex === qData.answer);
+
+            const allButtons = document.querySelectorAll('.ufo-btn');
+            allButtons.forEach(btn => btn.disabled = true);
+
+            const feedbackBanner = document.getElementById('feedback-banner');
+            const feedbackTitle = document.getElementById('feedback-title');
+            const feedbackDetail = document.getElementById('feedback-detail');
+
+            if (isCorrect) {
+                // Correct Answer Path
+                fireLaserToElement(clickedBtn);
+                clickedBtn.classList.add('correct-ufo');
+                playCorrectSound();
+                createConfetti();
+
+                score += 10;
+                correctAnswersCount++;
+
+                feedbackBanner.className = 'feedback-banner correct';
+                feedbackTitle.innerText = '✅ CHÍNH XÁC!';
+                feedbackDetail.innerText = qData.explanation;
+            } else {
+                // Incorrect Answer Path
+                clickedBtn.classList.add('wrong-ufo');
+                playWrongSound();
+                
+                // Screen shake
+                document.getElementById('app').classList.add('shake');
+                setTimeout(() => document.getElementById('app').classList.remove('shake'), 450);
+
+                lives--;
+                wrongAnswersCount++;
+
+                // Highlight actual correct UFO
+                allButtons.forEach((btn, idx) => {
+                    if (currentShuffledAnswers[idx].originalIndex === qData.answer) {
+                        btn.classList.add('correct-ufo');
+                    }
+                });
+
+                feedbackBanner.className = 'feedback-banner wrong';
+                feedbackTitle.innerText = '❌ CHƯA CHÍNH XÁC!';
+                feedbackDetail.innerText = `Đáp án đúng là: ${qData.options[qData.answer]}\n👉 ${qData.explanation}`;
+            }
+
+            updateHUD();
+
+            feedbackBanner.style.display = 'block';
+
+            // Check Game Over condition or show Next button
+            if (lives <= 0) {
+                setTimeout(() => {
+                    showGameOver();
+                }, 1800);
+            } else {
+                document.getElementById('next-btn-box').style.display = 'block';
+            }
+        }
+
+        function nextQuestion() {
+            playSoundBeep();
+            currentQuestionIndex++;
+            if (currentQuestionIndex >= shuffledQuestions.length) {
+                showResult();
+            } else {
+                renderQuestion();
+            }
+        }
+
+        function showGameOver() {
+            showResult(true);
+        }
+
+        // ==========================================================================
+        // RESULT & GOOGLE FORM SUBMISSION
+        // ==========================================================================
+        function showResult(isGameOver = false) {
+            const totalQuestions = shuffledQuestions.length;
+            const accuracy = Math.round((correctAnswersCount / totalQuestions) * 100) || 0;
+
+            document.getElementById('res-student-name').innerText = studentName;
+            document.getElementById('res-score').innerText = score;
+            document.getElementById('res-correct').innerText = correctAnswersCount;
+            document.getElementById('res-wrong').innerText = wrongAnswersCount;
+            document.getElementById('res-lives').innerText = `${lives} / 3`;
+            document.getElementById('res-accuracy').innerText = `${accuracy}%`;
+
+            const mainTitle = document.getElementById('result-main-title');
+            const subTitle = document.getElementById('result-subtitle');
+            const rankStars = document.getElementById('rank-stars');
+            const rankTitle = document.getElementById('rank-title');
+
+            if (isGameOver) {
+                mainTitle.innerText = '💥 MẤT TÍN HIỆU NHIỆM VỤ';
+                mainTitle.style.background = 'linear-gradient(135deg, #ef4444, #f97316)';
+                mainTitle.style.webkitBackgroundClip = 'text';
+                subTitle.innerText = 'Hạm đội ngoài hành tinh quá mạnh! Hãy thử lại nhé.';
+            } else {
+                mainTitle.innerText = '🏆 NHIỆM VỤ HOÀN THÀNH';
+                mainTitle.style.background = 'linear-gradient(135deg, #00f2fe, #4facfe)';
+                mainTitle.style.webkitBackgroundClip = 'text';
+                subTitle.innerText = 'Chúc mừng Cảnh sát Vũ trụ đã bảo vệ Trái Đất thành công!';
+            }
+
+            // Determine Rank
+            let starText = '⭐';
+            let rankText = 'Tân binh Cảnh sát';
+
+            if (accuracy >= 90) {
+                starText = '⭐⭐⭐';
+                rankText = 'Anh hùng Ngân Hà';
+            } else if (accuracy >= 70) {
+                starText = '⭐⭐';
+                rankText = 'Chiến binh Vũ trụ';
+            } else {
+                starText = '⭐';
+                rankText = 'Tân binh Cảnh sát';
+            }
+
+            rankStars.innerText = starText;
+            rankTitle.innerText = rankText;
+
+            // Reset submit button status
+            const sendBtn = document.getElementById('send-btn');
+            sendBtn.disabled = false;
+            sendBtn.innerHTML = '📤 Gửi kết quả đến cô Lý';
+            document.getElementById('form-status').innerText = '';
+
+            showScreen('result-screen');
+            createConfetti();
+        }
+
+        function sendResult() {
+            const sendBtn = document.getElementById('send-btn');
+            const statusDiv = document.getElementById('form-status');
+
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = '⏳ Đang gửi kết quả...';
+            statusDiv.innerText = '';
+
+            // Calculate accuracy & rank string
+            const totalQuestions = shuffledQuestions.length;
+            const accuracy = Math.round((correctAnswersCount / totalQuestions) * 100) || 0;
+            let rankStars = '⭐';
+            if (accuracy >= 90) rankStars = '⭐⭐⭐';
+            else if (accuracy >= 70) rankStars = '⭐⭐';
+
+            // Form payload values
+            const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSeRpWEQeI6nhUP-LanoAwRASy3fdqiNv-WkORDse1fUz7rKww/formResponse";
+            const nameEntry = "entry.242425101";
+            const resultEntry = "entry.1069269581";
+
+            const resultSummary = `Điểm: ${score} | Đúng: ${correctAnswersCount} | Sai: ${wrongAnswersCount} | Tim còn: ${lives} | Xếp hạng: ${rankStars}`;
+
+            // Build GET URL parameters
+            const params = new URLSearchParams();
+            params.append(nameEntry, studentName);
+            params.append(resultEntry, resultSummary);
+
+            const fullUrl = `${formUrl}?${params.toString()}`;
+
+            // Execute Fetch GET request
+            fetch(fullUrl, {
+                method: 'GET',
+                mode: 'no-cors'
+            }).then(() => {
+                statusDiv.style.color = '#4ade80';
+                statusDiv.innerText = '✅ Đã gửi kết quả đến cô Lý.';
+                sendBtn.innerHTML = '✅ Đã gửi thành công';
+                playSoundBeep();
+            }).catch(error => {
+                console.error('Error submitting form:', error);
+                statusDiv.style.color = '#f87171';
+                statusDiv.innerText = '❌ Không gửi được. Kiểm tra kết nối Internet.';
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = '📤 Gửi lại kết quả';
+            });
+        }
+
+        function restartGame() {
+            showScreen('start-screen');
+        }
+
+        // ==========================================================================
+        // INITIALIZATION ON WINDOW LOAD
+        // ==========================================================================
+        window.onload = function() {
+            resizeCanvas();
+            renderSpaceBackground();
+            renderEffects();
+
+            // Enable audio on first user touch/click anywhere
+            window.addEventListener('click', initAudio, { once: true });
+            window.addEventListener('touchstart', initAudio, { once: true });
+        };
+    </script>
+</body>
+</html>
