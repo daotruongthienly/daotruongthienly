@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chuyến Thám Hiểm Rừng Xanh - Toán Lớp 5</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- html2canvas cho tính năng xuất báo cáo dạng ảnh -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            font-family: 'Nunito', sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-2px, 0, 0); }
+            20%, 80% { transform: translate3d(4px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-8px, 0, 0); }
+            40%, 60% { transform: translate3d(8px, 0, 0); }
+        }
+
+        .glow-combo {
+            animation: glow 1s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 0 10px #f59e0b, 0 0 20px #f59e0b; }
+            to { box-shadow: 0 0 20px #fbbf24, 0 0 35px #fbbf24; }
+        }
+
+        .btn-bounce:hover {
+            transform: translateY(-3px) scale(1.02);
+        }
+        .btn-bounce:active {
+            transform: translateY(1px) scale(0.98);
+        }
+
+        .character-jump {
+            animation: jump 0.6s ease-in-out;
+        }
+
+        @keyframes jump {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-30px) scale(1.1); }
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center p-3 sm:p-6 min-h-screen">
+
+    <!-- CONTAINER CHÍNH -->
+    <div id="game-container" class="w-full max-w-2xl glass-panel rounded-3xl p-5 sm:p-8 relative overflow-hidden transition-all duration-300">
+
+        <!-- ================= 1. MÀN HÌNH BẮT ĐẦU ================= -->
+        <div id="start-screen" class="space-y-6 text-center">
+            <div class="relative inline-block">
+                <div class="text-5xl sm:text-6xl mb-2 animate-bounce">🌴🦁🦜</div>
+                <h1 class="text-3xl sm:text-4xl font-extrabold text-emerald-800 uppercase tracking-wide drop-shadow-sm">
+                    Chuyến Thám Hiểm Rừng Xanh
+                </h1>
+                <span class="bg-amber-400 text-amber-950 text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider shadow">
+                    Môn Toán Lớp 5
+                </span>
+            </div>
+
+            <div class="glass-card rounded-2xl p-4 sm:p-5 text-left text-gray-700 space-y-2 border-l-4 border-emerald-500">
+                <h2 class="font-bold text-emerald-800 text-lg flex items-center gap-2">
+                    <i class="fa-solid fa-compass text-amber-500"></i> Hướng dẫn hành trình:
+                </h2>
+                <ul class="text-sm sm:text-base space-y-1 list-disc list-inside text-gray-600">
+                    <li>Bạn đang lạc trong rừng rậm và cần vượt qua các thử thách!</li>
+                    <li>Giải chính xác các câu hỏi để **bắc cầu qua sông** và mở lối đi tiếp.</li>
+                    <li>Bạn có **3 Trái tim** 💖. Sai quá 2 lần mỗi câu hỏi sẽ bị mất 1 tim!</li>
+                    <li>Đạt chuỗi đúng liên tiếp để nhận hiệu ứng **Combo rực rỡ**! ✨</li>
+                </ul>
+            </div>
+
+            <form id="start-form" onsubmit="startGame(event)" class="space-y-4">
+                <div>
+                    <label for="player-name" class="block text-sm font-bold text-emerald-900 mb-1 text-left">
+                        Nhập tên nhà thám hiểm nhí:
+                    </label>
+                    <input type="text" id="player-name" required placeholder="Ví dụ: Nguyễn Văn A" 
+                        class="w-full px-4 py-3 rounded-xl border-2 border-emerald-300 focus:border-emerald-500 focus:outline-none text-lg font-bold text-gray-800 shadow-inner">
+                </div>
+                <button type="submit" class="btn-bounce w-full bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-extrabold text-xl py-4 rounded-xl shadow-lg transition duration-200 uppercase tracking-wide flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-play"></i> Bắt Đầu Thám Hiểm
+                </button>
+            </form>
+        </div>
+
+        <!-- ================= 2. MÀN HÌNH CHƠI GAME ================= -->
+        <div id="gameplay-screen" class="hidden space-y-5">
+            <!-- Header Thông số Game -->
+            <div class="flex flex-wrap items-center justify-between gap-2 bg-emerald-100/80 p-3 rounded-2xl border border-emerald-200">
+                <!-- Mạng sống -->
+                <div class="flex items-center gap-1 bg-white px-3 py-1.5 rounded-xl shadow-sm">
+                    <span id="lives-container" class="text-xl sm:text-2xl">💖💖💖</span>
+                </div>
+
+                <!-- Combo Counter -->
+                <div id="combo-badge" class="hidden bg-amber-400 text-amber-950 font-black px-3 py-1 rounded-xl text-xs sm:text-sm glow-combo flex items-center gap-1">
+                    ⚡ COMBO x<span id="combo-count">0</span>
+                </div>
+
+                <!-- Điểm số -->
+                <div class="bg-white px-4 py-1.5 rounded-xl shadow-sm font-black text-emerald-700 text-base sm:text-lg">
+                    🏆 <span id="score-display">0</span> điểm
+                </div>
+            </div>
+
+            <!-- Tiến trình -->
+            <div class="space-y-1">
+                <div class="flex justify-between text-xs font-bold text-emerald-900">
+                    <span>Thử thách: <span id="current-question-num">1</span>/<span id="total-questions-num">5</span></span>
+                    <span id="progress-percent">0%</span>
+                </div>
+                <div class="w-full bg-gray-200 h-3 rounded-full overflow-hidden p-0.5 border border-white">
+                    <div id="progress-bar" class="bg-gradient-to-r from-emerald-400 to-green-500 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Khung Câu Hỏi & Nhân Vật -->
+            <div id="question-card" class="glass-card rounded-2xl p-5 sm:p-6 space-y-4 border-2 border-emerald-100 relative">
+                <!-- Nhân vật thám hiểm -->
+                <div id="character" class="text-4xl text-center transition-all duration-300">
+                    🚶‍♂️🌴
+                </div>
+
+                <!-- Đề bài -->
+                <div class="text-center space-y-2">
+                    <h3 id="question-text" class="text-lg sm:text-xl font-bold text-gray-800 leading-relaxed">
+                        <!-- Nội dung câu hỏi sẽ load ở đây -->
+                    </h3>
+                </div>
+
+                <!-- Form Nhập Đáp Án -->
+                <div class="space-y-3 pt-2">
+                    <div class="flex gap-2">
+                        <input type="number" step="any" id="user-answer" placeholder="Nhập kết quả (số)..." 
+                            class="flex-1 px-4 py-3 text-center text-xl font-bold rounded-xl border-2 border-emerald-400 focus:border-emerald-600 focus:outline-none shadow-inner"
+                            onkeypress="if(event.key==='Enter') checkAnswer()">
+                        <button onclick="checkAnswer()" class="btn-bounce bg-amber-500 hover:bg-amber-600 text-white font-extrabold px-6 py-3 rounded-xl shadow-md transition duration-200">
+                            Gửi 🚀
+                        </button>
+                    </div>
+
+                    <!-- Lời giải / Gợi ý khi trả lời sai -->
+                    <div id="feedback-box" class="hidden p-4 rounded-xl text-sm sm:text-base font-semibold transition-all"></div>
+                </div>
+            </div>
+
+            <!-- Nút Chuyển Câu (Ẩn mặc định) -->
+            <button id="next-btn" onclick="nextQuestion()" class="hidden btn-bounce w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-extrabold py-3 rounded-xl shadow-lg transition duration-200 uppercase tracking-wide">
+                Tiếp tục hành trình ➡️
+            </button>
+        </div>
+
+        <!-- ================= 3. MÀN HÌNH KẾT THÚC ================= -->
+        <div id="end-screen" class="hidden space-y-5 text-center">
+            <div id="report-card-area" class="glass-card rounded-2xl p-6 space-y-4 border-2 border-amber-200 bg-white">
+                <div class="text-4xl" id="result-emoji">🎉</div>
+                <h2 class="text-2xl sm:text-3xl font-black text-emerald-800">BÁO CÁO KẾT QUẢ</h2>
+                <p class="text-gray-600 font-bold">Nhà thám hiểm: <span id="report-name" class="text-emerald-700 font-black text-lg">---</span></p>
+
+                <!-- Xếp hạng Sao -->
+                <div id="stars-container" class="text-3xl sm:text-4xl text-amber-400 space-x-1">
+                    ⭐⭐⭐
+                </div>
+
+                <!-- Bảng Thống Kê -->
+                <div class="grid grid-cols-2 gap-3 pt-2 text-left">
+                    <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
+                        <p class="text-xs text-gray-500 font-bold">Tổng Điểm</p>
+                        <p class="text-xl font-black text-emerald-700" id="final-score">0</p>
+                    </div>
+                    <div class="bg-blue-50 p-3 rounded-xl border border-blue-100">
+                        <p class="text-xs text-gray-500 font-bold">Đúng / Tổng số</p>
+                        <p class="text-xl font-black text-blue-700" id="final-accuracy">0/0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bảng Xếp Hạng LocalStorage -->
+            <div class="glass-card rounded-2xl p-4 text-left space-y-2">
+                <h3 class="font-extrabold text-emerald-900 text-sm sm:text-base flex items-center gap-2">
+                    <i class="fa-solid fa-trophy text-amber-500"></i> Bảng Kỷ Lục (Lưu trên máy này):
+                </h3>
+                <div id="leaderboard-list" class="text-xs sm:text-sm space-y-1 text-gray-700 max-h-32 overflow-y-auto">
+                    <!-- Danh sách kỷ lục sẽ nạp ở đây -->
+                </div>
+            </div>
+
+            <!-- Các Nút Hành Động -->
+            <div class="space-y-2 pt-2">
+                <button onclick="sendToGoogleForm()" class="btn-bounce w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold py-3.5 rounded-xl shadow-lg flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> Gửi kết quả đến cô Lý
+                </button>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="downloadReport()" class="btn-bounce bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-xl shadow flex items-center justify-center gap-2 text-sm">
+                        <i class="fa-solid fa-file-arrow-down"></i> Tải Báo Cáo
+                    </button>
+                    <button onclick="restartGame()" class="btn-bounce bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 rounded-xl shadow flex items-center justify-center gap-2 text-sm">
+                        <i class="fa-solid fa-rotate-right"></i> Chơi Lại
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ================= JAVASCRIPT GAME ENGINE ================= -->
+    <script>
+        /* ==========================================================================
+           1. DỮ LIỆU CÂU HỎI (Dễ dàng thay đổi/thêm bớt cho giáo viên)
+           ========================================================================== */
+        const QUIZ_DATA = [
+            {
+                id: 1,
+                question: "Đặt tính rồi tính: **87 × 23** = ?",
+                answer: 2001,
+                explanation: "Thực hiện phép nhân: 87 × 23 = 2001."
+            },
+            {
+                id: 2,
+                question: "Tính kết quả phép tính: **134 × 32** = ?",
+                answer: 4288,
+                explanation: "Thực hiện phép nhân: 134 × 32 = 4288."
+            },
+            {
+                id: 3,
+                question: "Đặt tính rồi tính: **2 021 × 36** = ?",
+                answer: 72756,
+                explanation: "Thực hiện phép nhân: 2021 × 36 = 72756."
+            },
+            {
+                id: 4,
+                question: "Chọn kết quả thích hợp cho chiếc áo mang phép tính **24 × 16**?",
+                answer: 384,
+                explanation: "Phép tính trên chiếc áo 24 × 16 cho kết quả đúng là 384."
+            },
+            {
+                id: 5,
+                question: "Cửa hàng có 18 bao ngô, mỗi bao cân nặng 35 kg. Hỏi cửa hàng đó có tất cả bao nhiêu ki-lô-gam ngô?",
+                answer: 630,
+                explanation: "Số kg ngô cửa hàng có là: 18 × 35 = 630 (kg)."
+            }
+        ];
+
+        /* ==========================================================================
+           2. WEB AUDIO API (Tạo âm thanh trực tiếp từ JS, không dùng mp3 ngoài)
+           ========================================================================== */
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new AudioContext();
+            }
+        }
+
+        function playSound(type) {
+            try {
+                initAudio();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'correct') {
+                    // Âm thanh "Ting ting" vui tươi
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                    osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+                    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.3);
+                } else if (type === 'wrong') {
+                    // Âm thanh cảnh báo trầm
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                    osc.frequency.setValueAtTime(100, audioCtx.currentTime + 0.15);
+                    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.4);
+                } else if (type === 'win') {
+                    // Âm thanh thắng trận
+                    const notes = [400, 500, 600, 800];
+                    notes.forEach((freq, idx) => {
+                        const noteOsc = audioCtx.createOscillator();
+                        const noteGain = audioCtx.createGain();
+                        noteOsc.connect(noteGain);
+                        noteGain.connect(audioCtx.destination);
+                        noteOsc.frequency.setValueAtTime(freq, audioCtx.currentTime + idx * 0.1);
+                        noteGain.gain.setValueAtTime(0.2, audioCtx.currentTime + idx * 0.1);
+                        noteGain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + idx * 0.1 + 0.2);
+                        noteOsc.start(audioCtx.currentTime + idx * 0.1);
+                        noteOsc.stop(audioCtx.currentTime + idx * 0.1 + 0.2);
+                    });
+                }
+            } catch (e) {
+                console.log("Audio not allowed yet");
+            }
+        }
+
+        /* ==========================================================================
+           3. BIẾN TRẠNG THÁI GAME
+           ========================================================================== */
+        let playerName = "";
+        let currentQuestionIdx = 0;
+        let score = 0;
+        let lives = 3;
+        let combo = 0;
+        let correctAnswersCount = 0;
+        let wrongAttemptsForCurrentQuest = 0;
+
+        /* ==========================================================================
+           4. QUẢN LÝ MÀN HÌNH & CHƠI GAME
+           ========================================================================== */
+        function startGame(e) {
+            e.preventDefault();
+            const nameInput = document.getElementById('player-name').value.trim();
+            if (!nameInput) return;
+
+            playerName = nameInput;
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('gameplay-screen').classList.remove('hidden');
+
+            // Reset chỉ số
+            currentQuestionIdx = 0;
+            score = 0;
+            lives = 3;
+            combo = 0;
+            correctAnswersCount = 0;
+
+            updateStats();
+            loadQuestion();
+        }
+
+        function updateStats() {
+            // Cập nhật trái tim
+            let heartsHtml = "";
+            for (let i = 0; i < 3; i++) {
+                heartsHtml += i < lives ? "💖" : "🖤";
+            }
+            document.getElementById('lives-container').innerHTML = heartsHtml;
+
+            // Cập nhật điểm
+            document.getElementById('score-display').innerText = score;
+
+            // Cập nhật Combo
+            const comboBadge = document.getElementById('combo-badge');
+            if (combo >= 2) {
+                comboBadge.classList.remove('hidden');
+                document.getElementById('combo-count').innerText = combo;
+            } else {
+                comboBadge.classList.add('hidden');
+            }
+
+            // Cập nhật Tiến trình
+            document.getElementById('current-question-num').innerText = currentQuestionIdx + 1;
+            document.getElementById('total-questions-num').innerText = QUIZ_DATA.length;
+            const progress = ((currentQuestionIdx) / QUIZ_DATA.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+            document.getElementById('progress-percent').innerText = `${Math.round(progress)}%`;
+        }
+
+        function loadQuestion() {
+            wrongAttemptsForCurrentQuest = 0;
+            const q = QUIZ_DATA[currentQuestionIdx];
+
+            // Render Markdown đơn giản (định dạng chữ đậm **text**)
+            let formattedQuestion = q.question.replace(/\*\*(.*?)\*\*/g, '<span class="text-amber-600 font-black">$1</span>');
+            document.getElementById('question-text').innerHTML = formattedQuestion;
+
+            document.getElementById('user-answer').value = '';
+            document.getElementById('user-answer').disabled = false;
+            document.getElementById('feedback-box').classList.add('hidden');
+            document.getElementById('next-btn').classList.add('hidden');
+
+            // Reset nhân vật animation
+            const char = document.getElementById('character');
+            char.className = "text-4xl text-center transition-all duration-300";
+            char.innerText = "🚶‍♂️🌴";
+
+            updateStats();
+        }
+
+        function checkAnswer() {
+            const inputEl = document.getElementById('user-answer');
+            const userAns = parseFloat(inputEl.value);
+
+            if (isNaN(userAns)) {
+                alert("Vui lòng nhập một số hợp lệ!");
+                return;
+            }
+
+            const q = QUIZ_DATA[currentQuestionIdx];
+            const feedbackBox = document.getElementById('feedback-box');
+
+            if (Math.abs(userAns - q.answer) < 0.0001) {
+                // --- TRẢ LỜI ĐÚNG ---
+                playSound('correct');
+                confetti({ particleCount: 60, spread: 60, origin: { y: 0.7 } });
+
+                score += 10;
+                combo++;
+                if (wrongAttemptsForCurrentQuest === 0) {
+                    correctAnswersCount++;
+                }
+
+                // Hiệu ứng nhân vật
+                const char = document.getElementById('character');
+                char.innerText = "🎉🏃‍♂️🌉";
+                char.classList.add('character-jump');
+
+                feedbackBox.className = "p-4 rounded-xl text-sm sm:text-base font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 block";
+                feedbackBox.innerHTML = `✅ **Chính xác!** Bạn đã bắc cầu qua sông thành công.<br><span class="font-normal text-xs sm:text-sm text-emerald-700">${q.explanation}</span>`;
+
+                inputEl.disabled = true;
+                document.getElementById('next-btn').classList.remove('hidden');
+
+            } else {
+                // --- TRẢ LỜI SAI ---
+                playSound('wrong');
+                combo = 0; // Mất chuỗi combo
+                wrongAttemptsForCurrentQuest++;
+
+                // Hiệu ứng rung màn hình
+                const card = document.getElementById('question-card');
+                card.classList.add('shake');
+                setTimeout(() => card.classList.remove('shake'), 500);
+
+                if (wrongAttemptsForCurrentQuest < 2) {
+                    feedbackBox.className = "p-4 rounded-xl text-sm font-bold bg-amber-100 text-amber-800 border border-amber-300 block";
+                    feedbackBox.innerHTML = `❌ Chưa chính xác rồi! Hãy kiểm tra lại phép tính nhé. (Bạn còn 1 lần thử)`;
+                } else {
+                    // Sai 2 lần
+                    lives--;
+                    feedbackBox.className = "p-4 rounded-xl text-sm font-bold bg-rose-100 text-rose-800 border border-rose-300 block";
+                    feedbackBox.innerHTML = `⚠️ **Đáp án đúng là: ${q.answer}**<br><span class="font-normal text-xs sm:text-sm">${q.explanation}</span>`;
+                    
+                    inputEl.disabled = true;
+                    document.getElementById('next-btn').classList.remove('hidden');
+
+                    if (lives <= 0) {
+                        setTimeout(() => endGame(), 1500);
+                        return;
+                    }
+                }
+            }
+
+            updateStats();
+        }
+
+        function nextQuestion() {
+            currentQuestionIdx++;
+            if (currentQuestionIdx < QUIZ_DATA.length) {
+                loadQuestion();
+            } else {
+                endGame();
+            }
+        }
+
+        /* ==========================================================================
+           5. MÀN HÌNH KẾT THÚC & BÁO CÁO
+           ========================================================================== */
+        function endGame() {
+            playSound('win');
+            document.getElementById('gameplay-screen').classList.add('hidden');
+            document.getElementById('end-screen').classList.remove('hidden');
+
+            // Cập nhật thông tin báo cáo
+            document.getElementById('report-name').innerText = playerName;
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('final-accuracy').innerText = `${correctAnswersCount}/${QUIZ_DATA.length}`;
+
+            // Xếp hạng sao
+            let starsHtml = "";
+            let emoji = "🎉";
+            if (correctAnswersCount === QUIZ_DATA.length) {
+                starsHtml = "⭐ ⭐ ⭐";
+                emoji = "🏆";
+            } else if (correctAnswersCount >= QUIZ_DATA.length / 2) {
+                starsHtml = "⭐ ⭐ ⚪";
+                emoji = "🌟";
+            } else {
+                starsHtml = "⭐ ⚪ ⚪";
+                emoji = "👏";
+            }
+            document.getElementById('stars-container').innerHTML = starsHtml;
+            document.getElementById('result-emoji').innerText = emoji;
+
+            // Bắn pháo hoa rực rỡ
+            confetti({ particleCount: 120, spread: 100, origin: { y: 0.5 } });
+
+            // Lưu LocalStorage & Render Bảng xếp hạng
+            saveLocalStorage(playerName, score);
+            renderLeaderboard();
+        }
+
+        function saveLocalStorage(name, score) {
+            let history = JSON.parse(localStorage.getItem('jungle_math_scores') || '[]');
+            history.push({ name: name, score: score, date: new Date().toLocaleDateString('vi-VN') });
+            // Sắp xếp giảm dần theo điểm
+            history.sort((a, b) => b.score - a.score);
+            // Giữ top 5
+            history = history.slice(0, 5);
+            localStorage.setItem('jungle_math_scores', JSON.stringify(history));
+        }
+
+        function renderLeaderboard() {
+            let history = JSON.parse(localStorage.getItem('jungle_math_scores') || '[]');
+            const listEl = document.getElementById('leaderboard-list');
+            if (history.length === 0) {
+                listEl.innerHTML = "<p class='text-gray-400 italic'>Chưa có kỷ lục nào.</p>";
+                return;
+            }
+
+            listEl.innerHTML = history.map((item, index) => `
+                <div class="flex justify-between items-center bg-emerald-50/60 px-3 py-1.5 rounded-lg border border-emerald-100">
+                    <span class="font-bold text-gray-700">${index + 1}. ${item.name}</span>
+                    <span class="font-black text-emerald-700">${item.score} điểm</span>
+                </div>
+            `).join('');
+        }
+
+        /* ==========================================================================
+           6. GỬI KẾT QUẢ ĐẾN GOOGLE FORM CỦA CÔ LÝ
+           ========================================================================== */
+        function sendToGoogleForm() {
+            const baseUrl = "https://docs.google.com/forms/d/e/1FAIpQLSdg0euEwNgf1yg2yz17OFD8puUGRhKTvuHaoUpNhj2iUmTaxw/formResponse";
+            
+            // Xây dựng URL params tự động điền và gửi
+            const formData = new URLSearchParams();
+            formData.append('entry.339301698', playerName); // Tên học sinh
+            formData.append('entry.1150657286', `${score} điểm (${correctAnswersCount}/${QUIZ_DATA.length} câu đúng)`); // Điểm số
+
+            // Gửi ẩn bằng fetch mode no-cors
+            fetch(baseUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: formData
+            }).then(() => {
+                alert(`✅ Đã gửi kết quả của em (${playerName} - ${score} điểm) đến cô Lý thành công!`);
+            }).catch(error => {
+                alert("⚠️ Không thể gửi tự động. Trình duyệt sẽ mở liên kết Google Form để em gửi!");
+                // Mở link trực tiếp nếu lỗi
+                const directUrl = `https://docs.google.com/forms/d/e/1FAIpQLSdg0euEwNgf1yg2yz17OFD8puUGRhKTvuHaoUpNhj2iUmTaxw/viewform?usp=pp_url&entry.339301698=${encodeURIComponent(playerName)}&entry.1150657286=${encodeURIComponent(score + ' điểm')}`;
+                window.open(directUrl, '_blank');
+            });
+        }
+
+        /* ==========================================================================
+           7. TẢI BÁO CÁO DẠNG ẢNH
+           ========================================================================== */
+        function downloadReport() {
+            const reportArea = document.getElementById('report-card-area');
+            html2canvas(reportArea).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `Bao_Cao_Kiem_Tra_${playerName.replace(/\s+/g, '_')}.png`;
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+        }
+
+        function restartGame() {
+            document.getElementById('end-screen').classList.add('hidden');
+            document.getElementById('start-screen').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
