@@ -1,0 +1,1918 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HÀNH TRÌNH VƯỢT ĐẠI DƯƠNG - Khoa Học Lớp 5</title>
+  <style>
+    /* ==========================================================================
+       1. GLOBAL & RESET STYLES
+       ========================================================================== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #0c4a6e;
+      color: #0f172a;
+    }
+
+    /* ==========================================================================
+       2. OCEAN ANIMATED BACKGROUND
+       ========================================================================== */
+    .ocean-stage {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      background: linear-gradient(180deg, #38bdf8 0%, #0284c7 40%, #0369a1 70%, #075985 100%);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* Sun & Sky Elements */
+    .sun {
+      position: absolute;
+      top: 30px;
+      right: 60px;
+      width: 80px;
+      height: 80px;
+      background: radial-gradient(circle, #fef08a 30%, #fde047 60%, rgba(253, 224, 71, 0) 100%);
+      border-radius: 50%;
+      box-shadow: 0 0 40px #fef08a;
+      animation: sunGlow 4s ease-in-out infinite alternate;
+    }
+
+    @keyframes sunGlow {
+      0% { transform: scale(1); box-shadow: 0 0 30px #fef08a; }
+      100% { transform: scale(1.08); box-shadow: 0 0 50px #fef08a; }
+    }
+
+    .cloud {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 50px;
+      opacity: 0.9;
+      animation: cloudMove linear infinite;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+    }
+    .cloud::before, .cloud::after {
+      content: '';
+      position: absolute;
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 50%;
+    }
+    .cloud1 { top: 40px; left: -150px; width: 120px; height: 40px; animation-duration: 35s; }
+    .cloud1::before { width: 50px; height: 50px; top: -20px; left: 20px; }
+    .cloud1::after { width: 40px; height: 40px; top: -15px; left: 55px; }
+
+    .cloud2 { top: 100px; left: -200px; width: 160px; height: 50px; animation-duration: 50s; animation-delay: 12s; }
+    .cloud2::before { width: 70px; height: 70px; top: -30px; left: 25px; }
+    .cloud2::after { width: 50px; height: 50px; top: -20px; left: 75px; }
+
+    @keyframes cloudMove {
+      from { left: -220px; }
+      to { left: 110vw; }
+    }
+
+    /* Seagulls */
+    .bird {
+      position: absolute;
+      width: 24px;
+      height: 12px;
+      opacity: 0.7;
+      animation: birdFly linear infinite;
+    }
+    .bird1 { top: 70px; left: -50px; animation-duration: 22s; }
+    .bird2 { top: 120px; left: -90px; animation-duration: 26s; animation-delay: 5s; }
+
+    @keyframes birdFly {
+      0% { left: -60px; transform: translateY(0) scale(0.8); }
+      50% { transform: translateY(-15px) scale(1); }
+      100% { left: 105vw; transform: translateY(0) scale(0.8); }
+    }
+
+    /* Treasure Island in Distance */
+    .island-container {
+      position: absolute;
+      bottom: 140px;
+      right: 5%;
+      width: 180px;
+      height: 120px;
+      transition: all 1s ease-out;
+      z-index: 3;
+      filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3));
+    }
+
+    /* Waves & Water Layers */
+    .wave-layer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 200%;
+      height: 180px;
+      background-repeat: repeat-x;
+    }
+
+    .wave1 {
+      bottom: 40px;
+      opacity: 0.5;
+      animation: waveAnim 14s linear infinite;
+      z-index: 1;
+    }
+
+    .wave2 {
+      bottom: 20px;
+      opacity: 0.8;
+      animation: waveAnim 9s linear infinite reverse;
+      z-index: 2;
+    }
+
+    .wave3 {
+      bottom: 0px;
+      opacity: 1;
+      animation: waveAnim 6s linear infinite;
+      z-index: 4;
+    }
+
+    @keyframes waveAnim {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* Ship Container */
+    .ship-wrapper {
+      position: absolute;
+      bottom: 85px;
+      left: 10%;
+      width: 140px;
+      height: 130px;
+      z-index: 3;
+      transition: left 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.5s ease;
+      filter: drop-shadow(0 12px 12px rgba(2, 44, 34, 0.35));
+    }
+
+    .ship-wrapper.bobbing {
+      animation: shipBob 3.5s ease-in-out infinite alternate;
+    }
+
+    .ship-wrapper.dash-forward {
+      animation: shipDash 0.8s ease-out;
+    }
+
+    .ship-wrapper.knock-back {
+      animation: shipKnock 0.6s ease-in-out;
+    }
+
+    .ship-wrapper.sinking {
+      animation: shipSink 2.5s forwards ease-in;
+    }
+
+    @keyframes shipBob {
+      0% { transform: translateY(0px) rotate(-2deg); }
+      50% { transform: translateY(-10px) rotate(2deg); }
+      100% { transform: translateY(0px) rotate(-2deg); }
+    }
+
+    @keyframes shipDash {
+      0% { transform: translateX(0) rotate(0deg); }
+      40% { transform: translateX(40px) rotate(-8deg); }
+      100% { transform: translateX(0) rotate(0deg); }
+    }
+
+    @keyframes shipKnock {
+      0% { transform: translateX(0) rotate(0deg); }
+      20% { transform: translateX(-30px) rotate(12deg); }
+      40% { transform: translateX(-15px) rotate(-6deg); }
+      100% { transform: translateX(0) rotate(0deg); }
+    }
+
+    @keyframes shipSink {
+      0% { transform: translateY(0) rotate(0); opacity: 1; }
+      50% { transform: translateY(50px) rotate(25deg); opacity: 0.8; }
+      100% { transform: translateY(180px) rotate(45deg); opacity: 0; }
+    }
+
+    /* Bubbles effect for sinking */
+    .bubble {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 50%;
+      animation: bubbleRise 2s infinite ease-out;
+    }
+    @keyframes bubbleRise {
+      0% { transform: translateY(0) scale(0.5); opacity: 1; }
+      100% { transform: translateY(-100px) scale(1.3); opacity: 0; }
+    }
+
+    /* ==========================================================================
+       3. GLASSMORPHISM CONTAINER & SCREENS
+       ========================================================================== */
+    .app-viewport {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      pointer-events: none;
+    }
+
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 2px solid rgba(255, 255, 255, 0.7);
+      border-radius: 24px;
+      box-shadow: 0 20px 40px rgba(0, 30, 60, 0.25), inset 0 2px 4px rgba(255,255,255,0.8);
+      pointer-events: auto;
+    }
+
+    .screen {
+      display: none;
+      width: 100%;
+      max-width: 760px;
+      margin: auto;
+      animation: fadeIn 0.4s ease-out forwards;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Screen Shake for Incorrect Answer */
+    .shake-screen {
+      animation: screenShake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+    }
+
+    @keyframes screenShake {
+      10%, 90% { transform: translate3d(-3px, 0, 0); }
+      20%, 80% { transform: translate3d(5px, 0, 0); }
+      30%, 50%, 70% { transform: translate3d(-8px, 0, 0); }
+      40%, 60% { transform: translate3d(8px, 0, 0); }
+    }
+
+    /* ==========================================================================
+       4. START SCREEN UI
+       ========================================================================== */
+    .start-card {
+      padding: 28px 32px;
+      text-align: center;
+    }
+
+    .game-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .game-title {
+      font-size: 2.2rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      text-shadow: 0 4px 10px rgba(2, 132, 199, 0.15);
+    }
+
+    .game-subtitle {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #0d9488;
+      background: #ccfbf1;
+      padding: 4px 16px;
+      border-radius: 20px;
+      display: inline-block;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .input-field {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+    }
+
+    .input-field label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #334155;
+      margin-bottom: 6px;
+    }
+
+    .custom-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #cbd5e1;
+      border-radius: 14px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #0f172a;
+      outline: none;
+      transition: all 0.2s ease;
+      background: rgba(255, 255, 255, 0.9);
+      user-select: text;
+      -webkit-user-select: text;
+    }
+
+    .custom-input:focus {
+      border-color: #0284c7;
+      box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.18);
+    }
+
+    /* Avatar Selection */
+    .avatar-picker-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #334155;
+      text-align: left;
+      margin-bottom: 8px;
+    }
+
+    .avatar-grid {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .avatar-option {
+      width: 58px;
+      height: 58px;
+      border-radius: 18px;
+      background: #f1f5f9;
+      border: 3px solid transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .avatar-option:hover {
+      transform: translateY(-4px) scale(1.05);
+      background: #e2e8f0;
+    }
+
+    .avatar-option.selected {
+      border-color: #0284c7;
+      background: #e0f2fe;
+      box-shadow: 0 8px 16px rgba(2, 132, 199, 0.25);
+      transform: translateY(-4px) scale(1.08);
+    }
+
+    /* Instruction Box */
+    .instruction-box {
+      background: #f0f9ff;
+      border: 1.5px dashed #0284c7;
+      border-radius: 16px;
+      padding: 12px 18px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-align: left;
+    }
+
+    .instruction-box .icon {
+      font-size: 1.6rem;
+    }
+
+    .instruction-box p {
+      font-size: 0.9rem;
+      color: #0369a1;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
+    /* Primary Action Buttons */
+    .btn-primary {
+      width: 100%;
+      padding: 16px 28px;
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      color: white;
+      font-size: 1.25rem;
+      font-weight: 800;
+      border: none;
+      border-radius: 18px;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(2, 132, 199, 0.4), inset 0 2px 2px rgba(255, 255, 255, 0.3);
+      transition: all 0.2s ease;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(2, 132, 199, 0.5);
+      background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
+    }
+
+    .btn-primary:active {
+      transform: translateY(1px);
+      box-shadow: 0 4px 10px rgba(2, 132, 199, 0.3);
+    }
+
+    .btn-secondary {
+      background: #f1f5f9;
+      color: #334155;
+      font-size: 0.95rem;
+      font-weight: 700;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 14px;
+      padding: 10px 20px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-secondary:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    /* ==========================================================================
+       5. GAMEPLAY SCREEN UI
+       ========================================================================== */
+    .top-header-bar {
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 20px;
+      margin-bottom: 12px;
+      pointer-events: auto;
+    }
+
+    .player-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .player-avatar-circle {
+      width: 44px;
+      height: 44px;
+      background: #e0f2fe;
+      border: 2px solid #0284c7;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+    }
+
+    .player-details h4 {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .player-details span {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #0284c7;
+    }
+
+    .stats-group {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .hearts-container {
+      display: flex;
+      gap: 4px;
+      font-size: 1.4rem;
+    }
+
+    .score-badge {
+      background: #fef9c3;
+      border: 1.5px solid #eab308;
+      color: #854d0e;
+      padding: 6px 14px;
+      border-radius: 14px;
+      font-size: 1rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .combo-badge {
+      background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+      color: white;
+      font-size: 0.85rem;
+      font-weight: 900;
+      padding: 4px 10px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(234, 88, 12, 0.3);
+      animation: pulseCombo 1s infinite alternate;
+    }
+
+    @keyframes pulseCombo {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.1); }
+    }
+
+    /* Sound Control Button */
+    .sound-toggle-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.9);
+      border: 1.5px solid #cbd5e1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: all 0.2s ease;
+    }
+    .sound-toggle-btn:hover { background: #ffffff; transform: scale(1.05); }
+
+    /* Progress Track bar */
+    .progress-track-wrapper {
+      width: 100%;
+      max-width: 900px;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(8px);
+      border-radius: 16px;
+      padding: 10px 18px;
+      margin-bottom: 12px;
+      pointer-events: auto;
+      border: 1.5px solid rgba(255, 255, 255, 0.9);
+    }
+
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: #0369a1;
+      margin-bottom: 6px;
+    }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: 12px;
+      background: #e2e8f0;
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #38bdf8 0%, #0284c7 100%);
+      border-radius: 10px;
+      transition: width 0.5s ease;
+    }
+
+    /* Timer Bar */
+    .timer-container {
+      width: 100%;
+      height: 6px;
+      background: #e2e8f0;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 12px;
+      margin-bottom: 16px;
+    }
+
+    .timer-bar {
+      height: 100%;
+      width: 100%;
+      background: #10b981;
+      transition: width 1s linear, background-color 0.3s ease;
+    }
+
+    /* Question Box */
+    .question-card {
+      padding: 24px;
+      text-align: center;
+      position: relative;
+    }
+
+    .question-text {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .blank-underline {
+      display: inline-block;
+      min-width: 100px;
+      padding: 2px 12px;
+      border-bottom: 3px solid #0284c7;
+      color: #0284c7;
+      font-weight: 900;
+      background: #f0f9ff;
+      border-radius: 6px;
+      margin: 0 4px;
+    }
+
+    /* Input & Submit */
+    .answer-form {
+      display: flex;
+      gap: 12px;
+      max-width: 500px;
+      margin: 0 auto 20px auto;
+    }
+
+    .answer-input {
+      flex: 1;
+      padding: 14px 18px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      border: 2px solid #cbd5e1;
+      border-radius: 16px;
+      outline: none;
+      background: #ffffff;
+      color: #0f172a;
+      transition: all 0.2s ease;
+      user-select: text;
+      -webkit-user-select: text;
+    }
+
+    .answer-input:focus {
+      border-color: #0284c7;
+      box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.2);
+    }
+
+    .btn-submit {
+      padding: 14px 28px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      font-size: 1.05rem;
+      font-weight: 800;
+      border: none;
+      border-radius: 16px;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3);
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    }
+
+    /* Lifelines Panel */
+    .lifelines-panel {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      padding-top: 12px;
+      border-top: 1.5px dashed #e2e8f0;
+    }
+
+    .lifeline-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: #f8fafc;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #334155;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .lifeline-btn:hover:not(:disabled) {
+      background: #e0f2fe;
+      border-color: #0284c7;
+      color: #0369a1;
+      transform: translateY(-2px);
+    }
+
+    .lifeline-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      filter: grayscale(1);
+    }
+
+    /* Hint Alert box inside card */
+    .hint-display-box {
+      display: none;
+      background: #fefce8;
+      border: 1.5px solid #fde047;
+      border-radius: 12px;
+      padding: 10px 14px;
+      margin-bottom: 16px;
+      font-size: 0.9rem;
+      color: #854d0e;
+      font-weight: 700;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    /* ==========================================================================
+       6. MODALS & POPUPS
+       ========================================================================== */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 520px;
+      padding: 28px;
+      text-align: center;
+      position: relative;
+    }
+
+    .modal-icon {
+      font-size: 3.5rem;
+      margin-bottom: 12px;
+    }
+
+    .modal-title {
+      font-size: 1.6rem;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .modal-title.correct { color: #10b981; }
+    .modal-title.wrong { color: #ef4444; }
+
+    .correct-answer-highlight {
+      background: #dcfce7;
+      color: #15803d;
+      font-weight: 800;
+      padding: 6px 14px;
+      border-radius: 10px;
+      display: inline-block;
+      margin: 10px 0;
+      font-size: 1.1rem;
+    }
+
+    .modal-explanation {
+      font-size: 0.95rem;
+      color: #475569;
+      line-height: 1.5;
+      margin-bottom: 20px;
+      background: #f8fafc;
+      padding: 12px;
+      border-radius: 12px;
+      text-align: left;
+    }
+
+    /* ==========================================================================
+       7. END & SUMMARY SCREEN UI
+       ========================================================================== */
+    .end-card {
+      padding: 32px;
+      text-align: center;
+    }
+
+    .stars-row {
+      font-size: 3rem;
+      margin: 12px 0;
+      letter-spacing: 6px;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin: 20px 0;
+      text-align: left;
+    }
+
+    .summary-item {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 12px 16px;
+      border-radius: 14px;
+    }
+
+    .summary-item label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #64748b;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .summary-item span {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    /* ==========================================================================
+       8. LEADERBOARD MODAL
+       ========================================================================== */
+    .leaderboard-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 0.9rem;
+    }
+
+    .leaderboard-table th {
+      background: #e0f2fe;
+      color: #0369a1;
+      font-weight: 800;
+      padding: 10px;
+      text-align: left;
+    }
+
+    .leaderboard-table td {
+      padding: 10px;
+      border-bottom: 1px solid #e2e8f0;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    .leaderboard-table tr:nth-child(even) {
+      background: #f8fafc;
+    }
+
+    /* ==========================================================================
+       9. CANVAS OVERLAYS FOR CONFETTI & FIREWORKS
+       ========================================================================== */
+    #effect-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 90;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 640px) {
+      .game-title { font-size: 1.6rem; }
+      .form-group { flex-direction: column; gap: 8px; }
+      .summary-grid { grid-template-columns: 1fr; }
+      .ship-wrapper { width: 100px; height: 90px; bottom: 70px; }
+      .island-container { width: 130px; height: 90px; bottom: 110px; }
+      .question-text { font-size: 1.15rem; }
+      .answer-form { flex-direction: column; }
+      .lifelines-panel { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Particle Effects Canvas -->
+  <canvas id="effect-canvas"></canvas>
+
+  <!-- Animated Ocean Background Scene -->
+  <div class="ocean-stage">
+    <div class="sun"></div>
+    <div class="cloud cloud1"></div>
+    <div class="cloud cloud2"></div>
+    <div class="bird bird1">
+      <svg viewBox="0 0 24 12" fill="#0369a1"><path d="M0 6 Q6 0 12 6 Q18 0 24 6 Q18 12 12 8 Q6 12 0 6 Z"/></svg>
+    </div>
+    <div class="bird bird2">
+      <svg viewBox="0 0 24 12" fill="#0369a1"><path d="M0 6 Q6 0 12 6 Q18 0 24 6 Q18 12 12 8 Q6 12 0 6 Z"/></svg>
+    </div>
+
+    <!-- Distant Treasure Island -->
+    <div class="island-container" id="island-target">
+      <svg viewBox="0 0 200 140" width="100%" height="100%">
+        <!-- Island Sand Base -->
+        <path d="M10 110 Q50 70 100 75 Q150 80 190 110 Z" fill="#fde047"/>
+        <path d="M20 115 Q60 80 110 85 Q160 90 180 115 Z" fill="#eab308"/>
+        <!-- Palm Tree 1 -->
+        <path d="M70 85 Q65 50 50 30" stroke="#78350f" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <path d="M50 30 Q30 20 20 30 M50 30 Q40 10 50 0 M50 30 Q65 10 75 20 M50 30 Q70 30 75 40" stroke="#15803d" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <!-- Palm Tree 2 -->
+        <path d="M120 90 Q125 55 140 35" stroke="#78350f" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <path d="M140 35 Q120 25 110 35 M140 35 Q130 15 140 5 M140 35 Q155 15 165 25 M140 35 Q160 35 165 45" stroke="#16a34a" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <!-- Treasure Chest -->
+        <g id="treasure-chest" transform="translate(85, 68)">
+          <rect x="0" y="8" width="28" height="18" rx="3" fill="#854d0e" stroke="#451a03" stroke-width="2"/>
+          <path id="chest-lid" d="M0 8 Q14 0 28 8 Z" fill="#a16207" stroke="#451a03" stroke-width="2"/>
+          <circle cx="14" cy="16" r="3" fill="#fef08a"/>
+        </g>
+      </svg>
+    </div>
+
+    <!-- Ship of Knowledge -->
+    <div class="ship-wrapper bobbing" id="ship-unit">
+      <svg viewBox="0 0 160 140" width="100%" height="100%">
+        <!-- Ship Hull -->
+        <path d="M20 85 L140 85 Q130 120 80 120 Q30 120 20 85 Z" fill="#854d0e" stroke="#451a03" stroke-width="3"/>
+        <path d="M25 92 L135 92 Q126 112 80 112 Q34 112 25 92 Z" fill="#a16207"/>
+        <!-- Gold Trim -->
+        <path d="M15 85 L145 85" stroke="#facc15" stroke-width="4" stroke-linecap="round"/>
+        <!-- Main Mast -->
+        <line x1="80" y1="20" x2="80" y2="85" stroke="#451a03" stroke-width="5" stroke-linecap="round"/>
+        <!-- Flag on Top -->
+        <polygon points="80,20 105,28 80,36" fill="#ef4444"/>
+        <!-- Sail with Knowledge Symbol -->
+        <path d="M83 26 Q125 45 83 75 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+        <path d="M83 26 Q115 45 83 75 Z" fill="#f8fafc"/>
+        <!-- Book/Star Icon on Sail -->
+        <path d="M96 46 Q102 42 108 46 L108 56 Q102 52 96 56 Z" fill="#0284c7"/>
+      </svg>
+    </div>
+
+    <!-- Parallax Ocean Waves -->
+    <div class="wave-layer wave1" style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 1200 120\' preserveAspectRatio=\'none\'><path d=\'M0,0 C150,90 350,-40 500,60 C650,160 900,10 1200,40 L1200,120 L0,120 Z\' fill=\'%230284c7\'/></svg>');"></div>
+    <div class="wave-layer wave2" style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 1200 120\' preserveAspectRatio=\'none\'><path d=\'M0,30 C200,100 450,0 700,70 C950,140 1050,20 1200,50 L1200,120 L0,120 Z\' fill=\'%230369a1\'/></svg>');"></div>
+    <div class="wave-layer wave3" style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 1200 120\' preserveAspectRatio=\'none\'><path d=\'M0,50 C150,110 350,20 600,80 C850,140 1050,30 1200,60 L1200,120 L0,120 Z\' fill=\'%23075985\'/></svg>');"></div>
+  </div>
+
+  <!-- UI Viewport Overlay -->
+  <div class="app-viewport">
+    
+    <!-- Sound Toggle Floating Button -->
+    <div style="width: 100%; max-width: 900px; display: flex; justify-content: flex-end; padding-top: 8px;">
+      <button class="sound-toggle-btn" id="sound-btn" title="Bật/Tắt âm thanh">🔊</button>
+    </div>
+
+    <!-- ==========================================
+         SCREEN 1: START SCREEN
+         ========================================== -->
+    <div class="screen active" id="screen-start">
+      <div class="glass-panel start-card">
+        <div class="game-logo">
+          <span style="font-size: 2.5rem;">⛵</span>
+          <h1 class="game-title">HÀNH TRÌNH VƯỢT ĐẠI DƯƠNG</h1>
+        </div>
+        <div class="game-subtitle">Khoa học lớp 5 - Bài 3: Hỗn hợp và dung dịch</div>
+
+        <div class="form-group">
+          <div class="input-field">
+            <label for="student-name">Tên học sinh:</label>
+            <input type="text" id="student-name" class="custom-input" placeholder="Nhập họ và tên..." value="Thuyền trưởng Tí">
+          </div>
+          <div class="input-field">
+            <label for="student-class">Lớp:</label>
+            <input type="text" id="student-class" class="custom-input" placeholder="Ví dụ: 5A1" value="5A1">
+          </div>
+        </div>
+
+        <div class="avatar-picker-label">Chọn Avatar Thuyền Trưởng:</div>
+        <div class="avatar-grid">
+          <div class="avatar-option selected" data-avatar="👦">👦</div>
+          <div class="avatar-option" data-avatar="👧">👧</div>
+          <div class="avatar-option" data-avatar="🏴‍☠️">🏴‍☠️</div>
+          <div class="avatar-option" data-avatar="🧑‍🚀">🧑‍🚀</div>
+        </div>
+
+        <div class="instruction-box">
+          <span class="icon">💡</span>
+          <p>Lái con tàu tri thức vượt đại dương bằng cách gõ đúng từ còn thiếu trong câu hỏi. Mối câu trả lời đúng sẽ giúp tàu tiến gần Đảo Kho Báu!</p>
+        </div>
+
+        <button class="btn-primary" id="btn-start-game">BẮT ĐẦU VƯỢT SÓNG 🚀</button>
+        <button class="btn-secondary" id="btn-view-leaderboard" style="margin-top: 12px; width: 100%;">🏆 Bảng Xếp Hạng Top 10</button>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SCREEN 2: GAMEPLAY SCREEN
+         ========================================== -->
+    <div class="screen" id="screen-game">
+      
+      <!-- Top Header Info -->
+      <div class="glass-panel top-header-bar">
+        <div class="player-badge">
+          <div class="player-avatar-circle" id="hud-avatar">👦</div>
+          <div class="player-details">
+            <h4 id="hud-name">Thuyền trưởng Tí</h4>
+            <span id="hud-class">Lớp 5A1</span>
+          </div>
+        </div>
+
+        <div class="stats-group">
+          <div class="hearts-container" id="hud-hearts">❤️❤️❤️</div>
+          <div class="score-badge">⭐ <span id="hud-score">0</span></div>
+          <div class="combo-badge" id="hud-combo" style="display: none;">x1 Combo</div>
+        </div>
+      </div>
+
+      <!-- Island Progress Tracker -->
+      <div class="progress-track-wrapper">
+        <div class="progress-info">
+          <span>Tiến độ hành trình: <span id="hud-progress-text">Câu 1/10</span></span>
+          <span>🏝️ Đảo Kho Báu</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="hud-progress-fill"></div>
+        </div>
+      </div>
+
+      <!-- Main Question Card -->
+      <div class="glass-panel question-card" id="question-panel">
+        
+        <!-- Hint Display -->
+        <div class="hint-display-box" id="hint-box">
+          💡 Gợi ý: <span id="hint-text"></span>
+        </div>
+
+        <div class="question-text" id="question-content">
+          "Hỗn hợp được tạo thành từ <span class="blank-underline">____</span> hay nhiều chất trộn lẫn."
+        </div>
+
+        <form class="answer-form" id="answer-form" onsubmit="return false;">
+          <input type="text" class="answer-input" id="user-answer-input" placeholder="Gõ từ còn thiếu vào đây..." autocomplete="off">
+          <button type="submit" class="btn-submit" id="btn-submit-answer">TRẢ LỜI ↵</button>
+        </form>
+
+        <!-- Lifelines Panel -->
+        <div class="lifelines-panel">
+          <button class="lifeline-btn" id="btn-life-5050" title="Gợi ý chữ cái đầu">
+            <span>✂️</span> 50:50
+          </button>
+          <button class="lifeline-btn" id="btn-life-heart" title="Hồi 1 trái tim trợ giúp">
+            <span>❤️</span> +1 Mạng
+          </button>
+          <button class="lifeline-btn" id="btn-life-hint" title="Xem gợi ý">
+            <span>💡</span> Gợi Ý
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SCREEN 3: GAME OVER / VICTORY SUMMARY
+         ========================================== -->
+    <div class="screen" id="screen-end">
+      <div class="glass-panel end-card">
+        <div id="end-header-icon" style="font-size: 3.5rem;">🎉</div>
+        <h2 class="game-title" id="end-title">HOÀN THÀNH HÀNH TRÌNH!</h2>
+        <p id="end-subtitle" style="font-weight: 700; color: #0369a1; margin-top: 4px;">Con tàu Tri Thức đã cập bến Đảo Kho Báu thành công!</p>
+
+        <div class="stars-row" id="end-stars">⭐⭐⭐</div>
+
+        <div class="summary-grid">
+          <div class="summary-item">
+            <label>Học sinh</label>
+            <span id="sum-student">Thuyền trưởng Tí (5A1)</span>
+          </div>
+          <div class="summary-item">
+            <label>Tổng Điểm</label>
+            <span id="sum-score" style="color: #d97706;">1000</span>
+          </div>
+          <div class="summary-item">
+            <label>Số câu Đúng</label>
+            <span id="sum-correct" style="color: #16a34a;">10 / 10</span>
+          </div>
+          <div class="summary-item">
+            <label>Combo cao nhất</label>
+            <span id="sum-combo" style="color: #ea580c;">x4</span>
+          </div>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn-primary" id="btn-restart">🔄 CHƠI LAI HÀNH TRÌNH</button>
+          <button class="btn-secondary" id="btn-export-report">📜 TẢI BÁO CÁO KẾT QUẢ (PNG)</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ==========================================
+       MODAL 1: EXPLANATION / FEEDBACK MODAL
+       ========================================== -->
+  <div class="modal-overlay" id="feedback-modal">
+    <div class="glass-panel modal-card">
+      <div class="modal-icon" id="fb-icon">❌</div>
+      <h3 class="modal-title" id="fb-title">CHƯA CHÍNH XÁC!</h3>
+      <div>Đáp án đúng là:</div>
+      <div class="correct-answer-highlight" id="fb-correct-ans">dung dịch</div>
+      <div class="modal-explanation" id="fb-explanation">
+        Lời giải thích chi tiết sẽ hiển thị ở đây.
+      </div>
+      <button class="btn-primary" id="btn-next-question">TIẾP TỤC VƯỢT SÓNG ➔</button>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL 2: LEADERBOARD MODAL
+       ========================================== -->
+  <div class="modal-overlay" id="leaderboard-modal">
+    <div class="glass-panel modal-card" style="max-width: 600px;">
+      <h3 class="modal-title" style="color: #0284c7;">🏆 BẢNG XẾP HẠNG TOP 10</h3>
+      
+      <table class="leaderboard-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Tên Học Sinh</th>
+            <th>Lớp</th>
+            <th>Điểm</th>
+            <th>Sao</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboard-tbody">
+          <!-- Rows inserted dynamically -->
+        </tbody>
+      </table>
+
+      <button class="btn-primary" id="btn-close-leaderboard">ĐÓNG</button>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       JAVASCRIPT SOURCE CODE
+       ========================================================================== -->
+  <script>
+    /* ==========================================================================
+       // SETTINGS
+       ========================================================================== */
+    const GAME_SETTINGS = {
+      QUESTION_TIME_LIMIT: 20, // seconds per question
+      MAX_HEARTS: 3,
+      BASE_POINTS: 100,
+      STORAGE_KEY: 'OCEAN_QUIZ_TOP_SCORES_V1'
+    };
+
+    /* ==========================================================================
+       // QUIZ_DATA
+       ========================================================================== */
+    const QUIZ_DATA = [
+      {
+        question: "Hỗn hợp được tạo thành từ ____ hay nhiều chất trộn lẫn với nhau.",
+        answer: "hai",
+        accepts: ["hai", "2"],
+        hint: "Số tự nhiên nhỏ hơn ba.",
+        explanation: "Hỗn hợp được tạo thành từ hai hoặc nhiều chất trộn lẫn với nhau mà vẫn giữ nguyên tính chất của mỗi chất."
+      },
+      {
+        question: "Muốn tạo thành một hỗn hợp, cần ít nhất ____ chất trộn lẫn với nhau.",
+        answer: "hai",
+        accepts: ["hai", "2"],
+        hint: "Mất ít nhất bao nhiêu chất để trộn?",
+        explanation: "Tối thiểu phải có 2 chất trộn lẫn thì mới tạo thành một hỗn hợp."
+      },
+      {
+        question: "Hỗn hợp đường và nước khi khuấy tan hoàn toàn tạo thành một ____.",
+        answer: "dung dịch",
+        accepts: ["dung dịch", "dung dich"],
+        hint: "Hỗn hợp chất lỏng đồng nhất.",
+        explanation: "Khi chất lỏng hòa tan chất khác tạo thành hỗn hợp đồng nhất, đó gọi là dung dịch."
+      },
+      {
+        question: "Trong dung dịch nước muối, chất tan là ____.",
+        answer: "muối",
+        accepts: ["muối", "muoi", "muối ăn", "muoi an"],
+        hint: "Gia vị có vị mặn.",
+        explanation: "Muối bị hòa tan trong nước nên muối là chất tan, còn nước là dung môi."
+      },
+      {
+        question: "Chất lỏng có khả năng hòa tan chất khác để tạo thành dung dịch gọi là ____.",
+        answer: "dung môi",
+        accepts: ["dung môi", "dung moi"],
+        hint: "Từ gồm 2 tiếng, bắt đầu bằng chữ 'dung'.",
+        explanation: "Dung môi là chất lỏng dùng để hòa tan các chất khác."
+      },
+      {
+        question: "Để tách muối ra khỏi dung dịch nước muối, người ta đun nóng để ____ bay hơi hết.",
+        answer: "nước",
+        accepts: ["nước", "nuoc"],
+        hint: "Chất lỏng bị chưng cất bay hơi.",
+        explanation: "Khi đun nóng dung dịch nước muối, nước sẽ bay hơi còn muối lưu lại ở đáy nồi."
+      },
+      {
+        question: "Hỗn hợp dầu ăn và nước là hỗn hợp ____ đồng nhất.",
+        answer: "không",
+        accepts: ["không", "khong"],
+        hint: "Dầu ăn có tan được trong nước không?",
+        explanation: "Dầu ăn không tan trong nước và nổi lên trên, nên đây là hỗn hợp KHÔNG đồng nhất."
+      },
+      {
+        question: "Muốn tách chất rắn không tan ra khỏi chất lỏng, người ta thường dùng phương pháp ____.",
+        answer: "lọc",
+        accepts: ["lọc", "loc"],
+        hint: "Dùng giấy hoặc phễu...",
+        explanation: "Phương pháp lọc giúp giữ lại chất rắn không tan trên màng lọc."
+      },
+      {
+        question: "Nước chanh đường là một ____ vì các chất hòa tan hoàn toàn vào nhau.",
+        answer: "dung dịch",
+        accepts: ["dung dịch", "dung dich"],
+        hint: "Khái niệm chỉ hỗn hợp chất lỏng đồng nhất.",
+        explanation: "Nước chanh đường là dung dịch vì nước, đường và cốt chanh hòa tan đồng nhất."
+      },
+      {
+        question: "Trộn gạo lẫn với đậu xanh ta thu được một ____.",
+        answer: "hỗn hợp",
+        accepts: ["hỗn hợp", "hon hop"],
+        hint: "Hai hay nhiều chất trộn lẫn nhưng không hòa tan.",
+        explanation: "Gạo và đậu xanh trộn lẫn tạo thành hỗn hợp, các hạt vẫn giữ nguyên hình dạng và tính chất."
+      }
+    ];
+
+    /* ==========================================================================
+       // AUDIO ENGINE (Web Audio API - No external MP3 needed!)
+       ========================================================================== */
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioCtx();
+        }
+        if (this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      playTing() {
+        if (this.muted) return;
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(523.25, now); // C5
+        osc.frequency.exponentialRampToValueAtTime(1046.50, now + 0.15); // C6
+
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.4);
+      }
+
+      playBuzz() {
+        if (this.muted) return;
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(180, now);
+        osc.frequency.setValueAtTime(110, now + 0.15);
+
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.35);
+      }
+
+      playBeep() {
+        if (this.muted) return;
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, now);
+
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.08);
+      }
+
+      playVictory() {
+        if (this.muted) return;
+        this.init();
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // C, E, G, C
+        notes.forEach((freq, i) => {
+          const now = this.ctx.currentTime + i * 0.12;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now);
+
+          gain.gain.setValueAtTime(0.3, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+
+          osc.start(now);
+          osc.stop(now + 0.3);
+        });
+      }
+
+      playSplash() {
+        if (this.muted) return;
+        this.init();
+        const now = this.ctx.currentTime;
+        const bufferSize = this.ctx.sampleRate * 0.3;
+        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const output = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          output[i] = Math.random() * 2 - 1;
+        }
+
+        const whiteNoise = this.ctx.createBufferSource();
+        whiteNoise.buffer = buffer;
+
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(800, now);
+        filter.frequency.linearRampToValueAtTime(100, now + 0.3);
+
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(0.4, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+
+        whiteNoise.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        whiteNoise.start(now);
+      }
+    }
+
+    const audio = new SoundEngine();
+
+    /* ==========================================================================
+       // GAME ENGINE
+       ========================================================================== */
+    class OceanGameEngine {
+      constructor() {
+        this.studentName = "Thuyền trưởng Tí";
+        this.studentClass = "5A1";
+        this.avatar = "👦";
+
+        this.currentIndex = 0;
+        this.score = 0;
+        this.lives = GAME_SETTINGS.MAX_HEARTS;
+        this.combo = 0;
+        this.maxCombo = 0;
+        this.correctCount = 0;
+
+        this.used5050 = false;
+        this.usedExtraHeart = false;
+        this.usedHint = false;
+
+        this.quizList = [];
+      }
+
+      initNewGame(name, className, avatar) {
+        this.studentName = name || "Thuyền trưởng Tí";
+        this.studentClass = className || "5A1";
+        this.avatar = avatar || "👦";
+
+        this.currentIndex = 0;
+        this.score = 0;
+        this.lives = GAME_SETTINGS.MAX_HEARTS;
+        this.combo = 0;
+        this.maxCombo = 0;
+        this.correctCount = 0;
+
+        this.used5050 = false;
+        this.usedExtraHeart = false;
+        this.usedHint = false;
+
+        // Shuffle quiz questions copy
+        this.quizList = [...QUIZ_DATA].sort(() => Math.random() - 0.5);
+      }
+
+      getCurrentQuestion() {
+        return this.quizList[this.currentIndex];
+      }
+
+      normalizeString(str) {
+        if (!str) return "";
+        return str
+          .trim()
+          .toLowerCase()
+          .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "")
+          .replace(/\s+/g, " ");
+      }
+
+      checkAnswer(userAns) {
+        const q = this.getCurrentQuestion();
+        const normUser = this.normalizeString(userAns);
+        
+        let isCorrect = false;
+        if (q.accepts && Array.isArray(q.accepts)) {
+          isCorrect = q.accepts.some(acc => this.normalizeString(acc) === normUser);
+        } else {
+          isCorrect = this.normalizeString(q.answer) === normUser;
+        }
+
+        if (isCorrect) {
+          this.combo += 1;
+          if (this.combo > this.maxCombo) this.maxCombo = this.combo;
+          this.correctCount += 1;
+          const pointsGained = GAME_SETTINGS.BASE_POINTS * Math.min(this.combo, 4);
+          this.score += pointsGained;
+          return { correct: true, points: pointsGained };
+        } else {
+          this.combo = 0;
+          this.lives -= 1;
+          return { correct: false };
+        }
+      }
+
+      isGameOver() {
+        return this.lives <= 0;
+      }
+
+      isVictory() {
+        return this.currentIndex >= this.quizList.length;
+      }
+    }
+
+    const game = new OceanGameEngine();
+
+    /* ==========================================================================
+       // CANVAS EFFECTS ENGINE (Confetti & Fireworks)
+       ========================================================================== */
+    const canvas = document.getElementById('effect-canvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    let particles = [];
+
+    function triggerConfetti() {
+      for (let i = 0; i < 80; i++) {
+        particles.push({
+          x: window.innerWidth / 2,
+          y: window.innerHeight / 2 - 50,
+          vx: (Math.random() - 0.5) * 14,
+          vy: (Math.random() - 0.7) * 16,
+          size: Math.random() * 8 + 4,
+          color: ['#38bdf8', '#facc15', '#4ade80', '#f43f5e', '#a855f7'][Math.floor(Math.random() * 5)],
+          life: 100
+        });
+      }
+    }
+
+    function renderParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.3; // gravity
+        p.life -= 1.5;
+
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (p.life <= 0) {
+          particles.splice(i, 1);
+        }
+      }
+      requestAnimationFrame(renderParticles);
+    }
+    renderParticles();
+
+    /* ==========================================================================
+       // UI CONTROLLER
+       ========================================================================== */
+    // DOM Elements
+    const screenStart = document.getElementById('screen-start');
+    const screenGame = document.getElementById('screen-game');
+    const screenEnd = document.getElementById('screen-end');
+
+    const feedbackModal = document.getElementById('feedback-modal');
+    const leaderboardModal = document.getElementById('leaderboard-modal');
+
+    const shipUnit = document.getElementById('ship-unit');
+    const islandTarget = document.getElementById('island-target');
+
+    // Start Screen Inputs
+    const inputStudentName = document.getElementById('student-name');
+    const inputStudentClass = document.getElementById('student-class');
+    const avatarOptions = document.querySelectorAll('.avatar-option');
+    let selectedAvatar = "👦";
+
+    avatarOptions.forEach(opt => {
+      opt.addEventListener('click', () => {
+        avatarOptions.forEach(o => o.classList.remove('selected'));
+        opt.classList.add('selected');
+        selectedAvatar = opt.dataset.avatar;
+      });
+    });
+
+    // Sound toggle
+    const soundBtn = document.getElementById('sound-btn');
+    soundBtn.addEventListener('click', () => {
+      audio.muted = !audio.muted;
+      soundBtn.textContent = audio.muted ? '🔇' : '🔊';
+    });
+
+    // Start Game Button
+    document.getElementById('btn-start-game').addEventListener('click', () => {
+      audio.init();
+      audio.playBeep();
+
+      const name = inputStudentName.value.trim();
+      const className = inputStudentClass.value.trim();
+
+      game.initNewGame(name, className, selectedAvatar);
+      switchScreen(screenGame);
+      loadQuestion();
+    });
+
+    function switchScreen(targetScreen) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      targetScreen.classList.add('active');
+    }
+
+    // Load Question into UI
+    function loadQuestion() {
+      if (game.isVictory()) {
+        finishGame(true);
+        return;
+      }
+
+      const q = game.getCurrentQuestion();
+      document.getElementById('question-content').innerHTML = q.question.replace('____', '<span class="blank-underline">____</span>');
+      
+      const inputAns = document.getElementById('user-answer-input');
+      inputAns.value = '';
+      inputAns.focus();
+
+      document.getElementById('hint-box').style.display = 'none';
+
+      // Update HUD
+      document.getElementById('hud-avatar').textContent = game.avatar;
+      document.getElementById('hud-name').textContent = game.studentName;
+      document.getElementById('hud-class').textContent = "Lớp " + game.studentClass;
+      document.getElementById('hud-score').textContent = game.score;
+
+      // Render Hearts
+      let heartsStr = '';
+      for (let i = 0; i < GAME_SETTINGS.MAX_HEARTS; i++) {
+        heartsStr += (i < game.lives) ? '❤️' : '🖤';
+      }
+      document.getElementById('hud-hearts').textContent = heartsStr;
+
+      // Render Combo badge
+      const comboBadge = document.getElementById('hud-combo');
+      if (game.combo >= 2) {
+        comboBadge.style.display = 'inline-block';
+        comboBadge.textContent = `x${game.combo} Combo 🔥`;
+      } else {
+        comboBadge.style.display = 'none';
+      }
+
+      // Progress Tracker
+      const currentProgressPct = ((game.currentIndex) / game.quizList.length) * 100;
+      document.getElementById('hud-progress-fill').style.width = currentProgressPct + '%';
+      document.getElementById('hud-progress-text').textContent = `Câu ${game.currentIndex + 1}/${game.quizList.length}`;
+
+      // Update Ship position across the ocean
+      updateShipPosition(currentProgressPct);
+
+      // Reset Lifelines state UI
+      document.getElementById('btn-life-5050').disabled = game.used5050;
+      document.getElementById('btn-life-heart').disabled = game.usedExtraHeart;
+      document.getElementById('btn-life-hint').disabled = game.usedHint;
+    }
+
+    function updateShipPosition(progressPct) {
+      // Map 0% - 100% progress to ship left position (10% to 70%)
+      const shipLeft = 10 + (progressPct * 0.6);
+      shipUnit.style.left = shipLeft + '%';
+    }
+
+    // Submit Answer Event
+    document.getElementById('answer-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      submitAnswer();
+    });
+
+    function submitAnswer() {
+      const userAns = document.getElementById('user-answer-input').value;
+      const result = game.checkAnswer(userAns);
+
+      if (result.correct) {
+        // Correct Action
+        audio.playTing();
+        triggerConfetti();
+
+        // Ship dash animation
+        shipUnit.classList.add('dash-forward');
+        setTimeout(() => shipUnit.classList.remove('dash-forward'), 800);
+
+        game.currentIndex += 1;
+        setTimeout(() => {
+          loadQuestion();
+        }, 800);
+
+      } else {
+        // Wrong Action
+        audio.playBuzz();
+        audio.playSplash();
+
+        // Ship knock back animation
+        shipUnit.classList.add('knock-back');
+        document.body.classList.add('shake-screen');
+        setTimeout(() => {
+          shipUnit.classList.remove('knock-back');
+          document.body.classList.remove('shake-screen');
+        }, 600);
+
+        showFeedbackModal(false, "CHƯA CHÍNH XÁC!");
+      }
+    }
+
+    function showFeedbackModal(isTimeout, titleText) {
+      const q = game.getCurrentQuestion();
+      document.getElementById('fb-icon').textContent = '🌊';
+      document.getElementById('fb-title').textContent = titleText;
+      document.getElementById('fb-correct-ans').textContent = q.answer;
+      document.getElementById('fb-explanation').textContent = q.explanation;
+
+      feedbackModal.classList.add('active');
+    }
+
+    document.getElementById('btn-next-question').addEventListener('click', () => {
+      feedbackModal.classList.remove('active');
+      if (game.isGameOver()) {
+        finishGame(false);
+      } else {
+        game.currentIndex += 1;
+        loadQuestion();
+      }
+    });
+
+    /* ==========================================================================
+       // LIFELINES LOGIC
+       ========================================================================== */
+    document.getElementById('btn-life-5050').addEventListener('click', () => {
+      if (game.used5050) return;
+      game.used5050 = true;
+      audio.playBeep();
+
+      const q = game.getCurrentQuestion();
+      const firstLetter = q.answer.charAt(0).toUpperCase();
+      const length = q.answer.length;
+
+      alert(`✂️ Gợi ý 50:50: Từ cần điền bắt đầu bằng chữ "${firstLetter}" và gồm ${length} ký tự.`);
+      document.getElementById('btn-life-5050').disabled = true;
+    });
+
+    document.getElementById('btn-life-heart').addEventListener('click', () => {
+      if (game.usedExtraHeart) return;
+      game.usedExtraHeart = true;
+      audio.playBeep();
+
+      if (game.lives < GAME_SETTINGS.MAX_HEARTS) {
+        game.lives += 1;
+        let heartsStr = '';
+        for (let i = 0; i < GAME_SETTINGS.MAX_HEARTS; i++) {
+          heartsStr += (i < game.lives) ? '❤️' : '🖤';
+        }
+        document.getElementById('hud-hearts').textContent = heartsStr;
+        alert('❤️ Trợ giúp: Đã hồi phục 1 trái tim!');
+      } else {
+        alert('❤️ Bạn đang có đầy đủ 3/3 trái tim!');
+      }
+      document.getElementById('btn-life-heart').disabled = true;
+    });
+
+    document.getElementById('btn-life-hint').addEventListener('click', () => {
+      if (game.usedHint) return;
+      game.usedHint = true;
+      audio.playBeep();
+
+      const q = game.getCurrentQuestion();
+      document.getElementById('hint-text').textContent = q.hint;
+      document.getElementById('hint-box').style.display = 'block';
+      document.getElementById('btn-life-hint').disabled = true;
+    });
+
+    /* ==========================================================================
+       // END GAME & LEADERBOARD
+       ========================================================================== */
+    function finishGame(isVictory) {
+      if (isVictory) {
+        audio.playVictory();
+        triggerConfetti();
+
+        // Ship docks at island
+        shipUnit.style.left = '72%';
+        document.getElementById('chest-lid').setAttribute('transform', 'rotate(-40, 0, 8)');
+
+        document.getElementById('end-header-icon').textContent = '🏝️';
+        document.getElementById('end-title').textContent = 'XUẤT SẮC CẬP BẾN!';
+        document.getElementById('end-subtitle').textContent = 'Con tàu Tri Thức đã mở được Kho Báu Tri Thức Đại Dương!';
+      } else {
+        audio.playBuzz();
+        shipUnit.classList.add('sinking');
+
+        document.getElementById('end-header-icon').textContent = '⚓';
+        document.getElementById('end-title').textContent = 'HÀNH TRÌNH BỊ GIÁN ĐOẠN!';
+        document.getElementById('end-subtitle').textContent = 'Con tàu bị sóng lớn đánh chìm. Hãy cố gắng lại lần sau nhé!';
+      }
+
+      // Calculate Stars
+      let stars = '⭐';
+      if (game.score >= 800) stars = '⭐⭐⭐';
+      else if (game.score >= 400) stars = '⭐⭐';
+
+      document.getElementById('end-stars').textContent = stars;
+      document.getElementById('sum-student').textContent = `${game.studentName} (${game.studentClass})`;
+      document.getElementById('sum-score').textContent = game.score;
+      document.getElementById('sum-correct').textContent = `${game.correctCount} / ${game.quizList.length}`;
+      document.getElementById('sum-combo').textContent = `x${game.maxCombo}`;
+
+      saveScoreToStorage(stars);
+      switchScreen(screenEnd);
+    }
+
+    // LocalStorage Leaderboard
+    function saveScoreToStorage(stars) {
+      const records = JSON.parse(localStorage.getItem(GAME_SETTINGS.STORAGE_KEY) || '[]');
+      records.push({
+        name: game.studentName,
+        className: game.studentClass,
+        score: game.score,
+        stars: stars,
+        date: new Date().toLocaleDateString('vi-VN')
+      });
+
+      // Sort descending by score
+      records.sort((a, b) => b.score - a.score);
+      localStorage.setItem(GAME_SETTINGS.STORAGE_KEY, JSON.stringify(records.slice(0, 10)));
+    }
+
+    function renderLeaderboard() {
+      const tbody = document.getElementById('leaderboard-tbody');
+      tbody.innerHTML = '';
+
+      const records = JSON.parse(localStorage.getItem(GAME_SETTINGS.STORAGE_KEY) || '[]');
+      if (records.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Chưa có kỷ lục nào. Hãy trở thành người đầu tiên!</td></tr>';
+        return;
+      }
+
+      records.forEach((rec, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${idx + 1}</td>
+          <td>${rec.name}</td>
+          <td>${rec.className}</td>
+          <td style="color:#d97706; font-weight:800;">${rec.score}</td>
+          <td>${rec.stars}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    document.getElementById('btn-view-leaderboard').addEventListener('click', () => {
+      renderLeaderboard();
+      leaderboardModal.classList.add('active');
+    });
+
+    document.getElementById('btn-close-leaderboard').addEventListener('click', () => {
+      leaderboardModal.classList.remove('active');
+    });
+
+    document.getElementById('btn-restart').addEventListener('click', () => {
+      shipUnit.classList.remove('sinking');
+      shipUnit.style.left = '10%';
+      document.getElementById('chest-lid').removeAttribute('transform');
+
+      switchScreen(screenStart);
+    });
+
+    /* ==========================================================================
+       // EXPORT REPORT (PNG Canvas Generator)
+       ========================================================================== */
+    document.getElementById('btn-export-report').addEventListener('click', () => {
+      const expCanvas = document.createElement('canvas');
+      expCanvas.width = 800;
+      expCanvas.height = 550;
+      const eCtx = expCanvas.getContext('2d');
+
+      // Background Gradient
+      const grad = eCtx.createLinearGradient(0, 0, 800, 550);
+      grad.addColorStop(0, '#e0f2fe');
+      grad.addColorStop(1, '#bae6fd');
+      eCtx.fillStyle = grad;
+      eCtx.fillRect(0, 0, 800, 550);
+
+      // Border frame
+      eCtx.strokeStyle = '#0284c7';
+      eCtx.lineWidth = 10;
+      eCtx.strokeRect(20, 20, 760, 510);
+
+      // Title
+      eCtx.fillStyle = '#0369a1';
+      eCtx.font = 'bold 30px "Segoe UI", sans-serif';
+      eCtx.textAlign = 'center';
+      eCtx.fillText('BÁO CÁO KẾT QUẢ HỌC TẬP', 400, 70);
+
+      eCtx.fillStyle = '#0f172a';
+      eCtx.font = 'bold 20px "Segoe UI", sans-serif';
+      eCtx.fillText('BÀI 3: HỖN HỢP VÀ DUNG DỊCH (KHOA HỌC 5)', 400, 105);
+
+      // Certificate content box
+      eCtx.fillStyle = '#ffffff';
+      eCtx.fillRect(60, 130, 680, 360);
+
+      eCtx.fillStyle = '#334155';
+      eCtx.font = '18px "Segoe UI", sans-serif';
+      eCtx.textAlign = 'left';
+
+      eCtx.fillText(`Họ và tên học sinh: ${game.studentName}`, 100, 180);
+      eCtx.fillText(`Lớp: ${game.studentClass}`, 100, 220);
+      eCtx.fillText(`Ngày hoàn thành: ${new Date().toLocaleDateString('vi-VN')}`, 100, 260);
+
+      eCtx.fillText(`Tổng điểm đạt được: ${game.score} điểm`, 100, 310);
+      eCtx.fillText(`Số câu trả lời đúng: ${game.correctCount} / ${game.quizList.length}`, 100, 350);
+      eCtx.fillText(`Chuỗi Combo cao nhất: x${game.maxCombo}`, 100, 390);
+
+      // Signature area
+      eCtx.textAlign = 'center';
+      eCtx.fillText('Xác nhận của Giáo viên', 600, 390);
+      eCtx.font = 'italic 14px "Segoe UI", sans-serif';
+      eCtx.fillText('(Ký & ghi rõ họ tên)', 600, 415);
+
+      // Trigger Download
+      const link = document.createElement('a');
+      link.download = `BaoCao_HanhTrinhVuotDaiDuong_${game.studentName}.png`;
+      link.href = expCanvas.toDataURL('image/png');
+      link.click();
+    });
+  </script>
+</body>
+</html>
